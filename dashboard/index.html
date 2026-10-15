@@ -8,8 +8,8 @@
 <style>
 /* ---------- Temas: claro (por defecto), oscuro (automático) y arcade (tecla A) ---------- */
 :root{
-  --bg:#f5f5f7;--card:#ffffff;--tx:#1d1d1f;--tx2:#5f5f66;--line:#e5e5ea;--acc:#0071e3;--acc-t:#e8f2fd;--acc2:#bf5af2;
-  --ok:#1a8f3c;--warn:#b25e00;--bad:#c4281c;--btn-tx:#ffffff;--track:#ececf0;
+  --bg:#f5f5f7;--card:#ffffff;--tx:#1d1d1f;--tx2:#5f5f66;--line:#e5e5ea;--acc:#0066cc;--acc-t:#e8f2fd;--acc2:#bf5af2;
+  --ok:#167a33;--warn:#b25e00;--bad:#c4281c;--btn-tx:#ffffff;--track:#ececf0;
   --sh:0 1px 2px rgba(0,0,0,.04),0 12px 36px rgba(0,0,0,.08);
   --fondo:radial-gradient(1200px 700px at 50% -10%,#e9f1ff 0%,transparent 60%);
   --glow:none;--fuente:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -71,7 +71,7 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 #chip-estado{display:inline-flex;align-items:center;gap:.6rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.55rem 1.1rem;font-size:1rem;box-shadow:var(--sh);font-variant-numeric:tabular-nums}
 #inicio-ayuda{color:var(--tx2);font-size:.95rem;max-width:30rem;min-height:2.6em}
 #inicio-ayuda code{background:var(--card);border:1px solid var(--line);border-radius:.4em;padding:.05em .4em}
-.pie-atajos{color:var(--tx2);font-size:.85rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.pie-atajos{color:var(--tx2);font-size:clamp(1rem,2.2vmin,1.4rem);display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
 
 /* Juego */
 #juego{display:grid;grid-template-rows:auto 1fr auto;gap:.75rem;padding:4.25rem 1.5rem 1.25rem}
@@ -96,7 +96,7 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 #guia{display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--line);border-radius:1.5rem;padding:1rem 1.25rem;box-shadow:var(--sh);
   max-width:34rem;margin-top:.6rem;text-align:left}
 #guia svg{width:6.5rem;height:auto;flex:none}
-#guia p{font-size:clamp(1.05rem,2.4vmin,1.5rem);font-weight:600;line-height:1.25}
+#guia p{font-size:clamp(1.4rem,3vmin,2rem);font-weight:600;line-height:1.25}
 #guia p small{display:block;font-weight:400;color:var(--tx2);font-size:.8em;margin-top:.2rem}
 #guia .mano{fill:var(--acc);fill-opacity:.9}
 #guia .linea{stroke:var(--tx2);stroke-width:2;fill:none;stroke-linecap:round}
@@ -106,7 +106,7 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 }
 
 /* ---------- Debajo del capó ---------- */
-#capo{position:fixed;top:0;right:0;bottom:0;width:min(30rem,100vw);z-index:45;background:var(--card);border-left:1px solid var(--line);box-shadow:var(--sh);
+#capo{position:fixed;top:0;right:0;bottom:0;width:min(30rem,100vw);z-index:58;background:var(--card);border-left:1px solid var(--line);box-shadow:var(--sh);
   overflow-y:auto;padding:1.25rem 1.25rem 2rem;transform:translateX(105%);visibility:hidden;transition:transform .35s cubic-bezier(.3,.7,.2,1),visibility 0s .35s}
 #capo.abierto{transform:none;visibility:visible;transition-delay:0s}
 #capo header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
@@ -142,6 +142,7 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 #overlay{position:fixed;inset:0;z-index:55;display:grid;place-items:center;pointer-events:none;text-align:center;padding:1rem;
   background:transparent;transition:background .3s}
 #overlay.on{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+body:has(#capo.abierto) #overlay.on{background:transparent}
 .msg.gana,.msg.pierde,.msg.empata{font-size:clamp(5rem,28vmin,20rem);letter-spacing:.08em;line-height:1.15}
 .msg{font-size:clamp(2.6rem,13vmin,10rem);font-weight:800;letter-spacing:-.03em;line-height:1.02;text-shadow:var(--glow);text-transform:var(--mayus);
   animation:msg .5s cubic-bezier(.3,1.5,.5,1) both}
@@ -156,6 +157,8 @@ canvas#confeti{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-
   .ctrl button{padding:.45rem .75rem;font-size:.85rem}
   #juego{padding:3.6rem .9rem 1rem}
   #guia svg{width:4.5rem}
+  .msg small{margin-top:1.2rem;font-size:1rem}
+  .msg.gana,.msg.pierde,.msg.empata{font-size:clamp(3.5rem,20vmin,9rem)}
   .pr{grid-template-columns:4.6rem 1fr 2.8rem}
 }
 @media (prefers-reduced-motion:reduce){
@@ -167,7 +170,7 @@ canvas#confeti{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-
 #marcador{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:.6rem .8rem;position:relative}
 .mk{background:var(--card);border:1px solid var(--line);border-radius:1.1rem;padding:.35rem 1.1rem;text-align:center;box-shadow:var(--sh);min-width:5.2rem}
 .mk b{display:block;font-size:clamp(1.5rem,4.2vmin,2.7rem);font-variant-numeric:tabular-nums;line-height:1.1}
-.mk span{font-size:.82rem;color:var(--tx2)}
+.mk span{font-size:clamp(1rem,2.2vmin,1.4rem);color:var(--tx2)}
 .mk.rc b{color:var(--warn)}
 #mk-reset{align-self:center;padding:.3rem .7rem;font-size:.8rem;font-weight:500}
 #invencible{flex-basis:100%;text-align:center;font-weight:800;color:var(--acc2);letter-spacing:.04em;text-shadow:var(--glow);animation:late 1.2s ease-in-out infinite}
@@ -182,6 +185,7 @@ canvas#confeti{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-
 /* Mensajes con estilo */
 .msg.gana{color:var(--ok)}.msg.pierde{color:var(--bad)}.msg.empata{color:var(--warn)}
 .msg.fullaura{background:linear-gradient(90deg,#ffd60a,#ff9f0a,#ff2bd6,#00f0ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;font-size:clamp(3rem,17vmin,13rem)}
+@media (prefers-color-scheme:light){:root:not([data-tema]) .msg.fullaura{background-image:linear-gradient(90deg,#b25e00,#c4281c,#8e24aa,#0066cc)}}
 .msg.fullaura small{-webkit-text-fill-color:var(--tx2)}
 .msg.sello{color:var(--ok);border:.12em solid var(--ok);border-radius:.2em;padding:.05em .3em;transform:rotate(-6deg);animation:sello .7s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes sello{0%{opacity:0;transform:scale(3) rotate(-14deg)}55%{opacity:1;transform:scale(.9) rotate(-6deg)}75%{transform:scale(1.06) rotate(-6deg)}100%{transform:scale(1) rotate(-6deg)}}
@@ -197,7 +201,7 @@ canvas#confeti{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-
 .fin-datos{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
 .fin-datos div{background:var(--bg);border-radius:1rem;padding:.6rem .9rem}
 .fin-datos b{display:block;font-size:clamp(1.4rem,4vmin,2.4rem);font-variant-numeric:tabular-nums}
-.fin-datos span{font-size:.9rem;color:var(--tx2)}
+.fin-datos span{font-size:clamp(1rem,2.2vmin,1.4rem);color:var(--tx2)}
 .fin-qr{text-align:center}
 .fin-qr canvas{width:min(17rem,40vmin);height:auto;aspect-ratio:1;image-rendering:pixelated;border-radius:.8rem;background:#fff}
 .fin-url{margin-top:.5rem;font-size:clamp(.85rem,1.9vmin,1.2rem);word-break:break-all;font-weight:600}
@@ -224,7 +228,7 @@ canvas#confeti{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-
   <div class="atajo">o pulsa <kbd>Enter</kbd></div>
   <div id="chip-estado" role="status" aria-live="polite"><span class="dot" id="dot-estado"></span><span id="chip-txt">Sin datos</span></div>
   <p id="inicio-ayuda"></p>
-  <div class="pie-atajos"><span><kbd>D</kbd> debajo del capó</span><span><kbd>A</kbd> arcade</span><span><kbd>M</kbd> silencio</span></div>
+  <div class="pie-atajos"><span><kbd>D</kbd> debajo del capó</span><span><kbd>A</kbd> arcade</span><span><kbd>M</kbd> silencio</span><span><kbd>F</kbd> fin de clase</span></div>
 </main>
 
 <section id="juego" class="vista" hidden aria-label="Juego">
@@ -434,8 +438,14 @@ pintarSilencio();
 var temaActual=null,temaPrevio=null,temaTimer=null;
 RPS.tema=function(nombre,ms){
   if(nombre===undefined)return temaActual||"auto";
-  clearTimeout(temaTimer);
   var n=nombre==="arcade"?"arcade":null;
+  if(ms&&n===temaActual&&temaTimer){
+    /* mismo tema temporal otra vez: reiniciar el plazo conservando el tema previo */
+    clearTimeout(temaTimer);
+    temaTimer=setTimeout(function(){RPS.tema(temaPrevio)},rapido?Math.max(ms*.3,300):ms);
+    return n||"auto";
+  }
+  clearTimeout(temaTimer);temaTimer=null;
   if(ms&&n!==temaActual){temaPrevio=temaActual;temaTimer=setTimeout(function(){RPS.tema(temaPrevio)},rapido?Math.max(ms*.3,300):ms)}
   temaActual=n;
   if(n)document.documentElement.setAttribute("data-tema",n);else document.documentElement.removeAttribute("data-tema");
@@ -863,7 +873,7 @@ R.on("tecla",function(t){
   if(ev.repeat)return;
   teclas.push(k);if(teclas.length>KONAMI.length)teclas.shift();
   if(teclas.length===KONAMI.length&&teclas.every(function(x,i){return x===KONAMI[i]})){teclas=[];konami();return}
-  if(k==="f"&&!t.consumida){if(finAbierto)cerrarFin();else abrirFin()}
+  if(k==="f"&&!t.consumida){if(finAbierto)cerrarFin();else if(!enPartida)abrirFin()}
 });
 function konami(){
   S.konami=3;pintar();
