@@ -80,3 +80,40 @@ def test_zip_invalido(tmp_path):
     with zipfile.ZipFile(vacio, "w") as z:
         z.writestr("x/readme.txt", "hola")
     assert correr(vacio).returncode != 0
+
+
+def test_led_clases_lista_y_union(tmp_path):
+    z = armar_zip(tmp_path)
+    r = correr(z, "--led-clases", "tijera,metal", "--umbral", "0.65", "--salida", tmp_path / "l.zip")
+    assert r.returncode == 0, r.stderr
+    assert 'actualizar_led(clase_ganadora, conf_ganadora, "tijera,metal", 0.65f)' in leer(tmp_path / "l.zip", INO)
+    # --led-clase sigue funcionando y se une con --led-clases sin repetir
+    r = correr(z, "--led-clase", "piedra", "--led-clases", "metal, piedra", "--salida", tmp_path / "u.zip")
+    assert r.returncode == 0, r.stderr
+    assert '"piedra,metal"' in leer(tmp_path / "u.zip", INO)
+    r = correr(z, "--led-clase", "piedra", "--salida", tmp_path / "s.zip")
+    assert '"piedra"' in leer(tmp_path / "s.zip", INO)
+
+
+def test_led_clases_invalida(tmp_path):
+    r = correr(armar_zip(tmp_path), "--led-clases", 'tijera,a"b')
+    assert r.returncode != 0 and "no valida" in r.stderr
+
+
+def test_led_etiqueta_fuera_de_contrato_solo_avisa(tmp_path):
+    r = correr(armar_zip(tmp_path), "--led-clases", "Metal,tijera", "--salida", tmp_path / "w.zip")
+    assert r.returncode == 0 and "AVISO" in r.stdout
+    assert '"Metal,tijera"' in leer(tmp_path / "w.zip", INO)
+
+
+def test_idempotente_con_lista(tmp_path):
+    z = armar_zip(tmp_path)
+    assert correr(z, "--led-clases", "a,b", "--salida", tmp_path / "a.zip").returncode == 0
+    assert correr(tmp_path / "a.zip", "--led-clases", "a,b", "--salida", tmp_path / "b.zip").returncode == 0
+    assert leer(tmp_path / "a.zip", INO) == leer(tmp_path / "b.zip", INO)
+
+
+def test_salida_json_sin_clases_fijas():
+    h = (RAIZ / "firmware" / "salida_json.h").read_text(encoding="utf-8")
+    assert "SJ_CLASES" not in h and "EI_CLASSIFIER_LABEL_COUNT" in h
+    assert "sj_en_lista" in h

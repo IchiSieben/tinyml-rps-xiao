@@ -24,6 +24,31 @@ class ErrorParche(Exception):
     pass
 
 
+RE_ETIQUETA = re.compile(r"^[a-z0-9_]{1,24}$")
+
+
+def unir_clases_led(una, varias):
+    """--led-clase (una) y --led-clases ("a,b") se unen, sin repetir y en orden.
+
+    Devuelve (lista, avisos). Una etiqueta que no cumple el contrato (minusculas ASCII) solo avisa:
+    el firmware compara contra las etiquetas reales del modelo. Si trae comillas, barras o
+    caracteres de control no se puede incrustar en C y es un error.
+    """
+    crudas = ([una] if una else []) + (varias or "").split(",")
+    res, avisos = [], []
+    for c in (x.strip() for x in crudas):
+        if not c:
+            continue
+        if not c.isprintable() or '"' in c or "\\" in c:
+            raise ErrorParche(f"Clase de LED no valida: {c!r} (no puede llevar comillas, barras ni caracteres de control).")
+        if not RE_ETIQUETA.match(c):
+            avisos.append(f"la etiqueta de LED '{c}' no cumple el contrato (minusculas ASCII, digitos y _); "
+                          "el dashboard rechazara las lineas que la usen")
+        if c not in res:
+            res.append(c)
+    return res, avisos
+
+
 def extraer(zip_ruta: Path, destino: Path) -> None:
     try:
         with zipfile.ZipFile(zip_ruta) as z:
@@ -36,7 +61,7 @@ def extraer(zip_ruta: Path, destino: Path) -> None:
         raise ErrorParche(f"'{zip_ruta}' no es un ZIP valido.")
 
 
-def parchear_ino(ino: Path, clase_led, umbral: float) -> list[str]:
+def parchear_ino(ino: Path, clases_led, umbral: float) -> list[str]:
     texto = ino.read_text(encoding="utf-8")
     if "xiao_pins.h" in texto:
         return ["esp32_camera.ino ya estaba parcheado, sin cambios"]
@@ -54,8 +79,9 @@ def parchear_ino(ino: Path, clase_led, umbral: float) -> list[str]:
     fin = texto.find("free(snapshot_buf);", ini) if ini >= 0 else -1
     if ini < 0 or fin < 0:
         raise ErrorParche("No se encontro el bloque de impresion de resultados en loop().")
-    if clase_led:
-        led = f'bool led = actualizar_led(clase_ganadora, conf_ganadora, "{clase_led}", {umbral:.2f}f);'
+    if clases_led:
+        lista = ",".join(clases_led)
+        led = f'bool led = actualizar_led(clase_ganadora, conf_ganadora, "{lista}", {umbral:.2f}f);'
     else:
         led = "bool led = false;"
     bloque = (
@@ -71,7 +97,7 @@ def parchear_ino(ino: Path, clase_led, umbral: float) -> list[str]:
     )
     texto = texto[:ini] + bloque + texto[fin:]
     msgs.append("impresion ei_printf de resultados reemplazada por emitir_json()")
-    msgs.append(f"LED: {'clase ' + clase_led if clase_led else 'desactivado'}, umbral {umbral:.2f}")
+    msgs.append(f"LED: {'clases ' + ','.join(clases_led) if clases_led else 'desactivado'}, umbral {umbral:.2f}")
     ino.write_text(texto, encoding="utf-8", newline="\n")
     return msgs
 
@@ -98,7 +124,8 @@ def main() -> int:
     ap.add_argument("zip", type=Path, help="ZIP de la libreria Arduino exportada desde Edge Impulse")
     ap.add_argument("--salida", type=Path, help="ZIP de salida (por defecto <entrada>_xiao.zip)")
     ap.add_argument("--arena", type=int, help="tamano del tensor arena; usar 384605 si falta memoria")
-    ap.add_argument("--led-clase", help="clase que enciende el LED (piedra, papel, tijera, nada)")
+    ap.add_argument("--led-clase", help="clase que enciende el LED (equivale a una lista de una)")
+    ap.add_argument("--led-clases", help='lista de clases que encienden el LED, ej. "tijera,metal" (se une con --led-clase)')
     ap.add_argument("--umbral", type=float, default=0.60, help="confianza minima para el LED (0.60)")
     a = ap.parse_args()
 
@@ -116,7 +143,8 @@ def main() -> int:
                     "Impulse con Deployment > Arduino library.")
             ino = inos[0]
             raiz_lib = ino.parents[3]
-            msgs = parchear_ino(ino, a.led_clase, a.umbral)
+            clases_led, avisos = unir_clases_led(a.led_clase, a.led_clases)
+            msgs = [f"AVISO: {x}" for x in avisos] + parchear_ino(ino, clases_led, a.umbral)
             for h in ("xiao_pins.h", "salida_json.h"):
                 shutil.copyfile(AQUI / h, ino.parent / h)
             msgs.append("xiao_pins.h y salida_json.h copiados junto al .ino")

@@ -21,6 +21,8 @@ Exporta en Edge Impulse: Deployment > Arduino library > Build, y guarda el ZIP (
 ```powershell
 # 1. Parchear (LED opcional: se enciende con "piedra" si la confianza es >= 0.60)
 python firmware/parchear_libreria.py rps-arduino.zip --led-clase piedra --umbral 0.60
+# Varias clases para el LED (se unen con --led-clase si se pasan las dos):
+python firmware/parchear_libreria.py rps-arduino.zip --led-clases "tijera,metal" --umbral 0.60
 
 # 2. Compilar (genera build/)
 .\firmware\compilar.ps1 -Zip rps-arduino_xiao.zip
@@ -59,3 +61,11 @@ No se rellenan credenciales WiFi: solo se compila. El registro de la última pru
   esta cámara se necesita `opi`.
 - **La placa no arranca con power bank:** el ejemplo de Edge Impulse tiene `while (!Serial);` en `setup`, así que la placa espera una conexión serie con la PC; alimentada desde un power bank no inicia hasta quitar esa línea (el parcheador no la quita).
 - **El ZIP no es el esperado:** el parcheador avisa si no encuentra `examples/esp32/esp32_camera/esp32_camera.ino`.
+
+## Clases del modelo
+
+`salida_json.h` imprime en `probs` **todas** las etiquetas del modelo (no hay lista fija de cuatro),
+así que agregar `metal` o `pulgar` no exige tocar el firmware. Las etiquetas salen tal cual: deben ser
+minúsculas ASCII `[a-z0-9_]` (hasta 24 caracteres, de 2 a 16 clases) para cumplir `docs/CONTRATO.md`.
+Edge Impulse permite otras, pero el dashboard rechaza esas líneas, así que hay que nombrar las clases
+así desde el principio. El parcheador avisa si una clase del LED no cumple.
