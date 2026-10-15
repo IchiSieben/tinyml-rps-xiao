@@ -1,0 +1,22 @@
+# Decisiones tomadas sin el dueño
+
+Formato: fecha · tarea · qué se eligió · por qué · qué se descartó · cómo revertirlo.
+
+## 2026-10-15 · especificación
+
+- **Qué:** el archivo `CLAUDE_TINYML_DEMO.md` citado en el pedido no existe en la carpeta del
+  proyecto ni en Descargas, Escritorio, `docs/`, `guia_IA/` o `parcial/`. Se trabajó con: el texto
+  del pedido (clases, LED, pines, estructura), `tiny ml/PROMPT_ClaudeCode_TinyML.md` (flujo de la
+  guía de Edge Impulse, pines de la XIAO, `ARENA_SIZE` 384605) y la wiki de Seeed.
+- **Por qué:** modo autónomo, no se detiene la sesión.
+- **Contrato JSON:** `docs/CONTRATO.md` es una propuesta propia. Si la especificación original
+  define otro formato, se cambia en tres sitios: `firmware/salida_json.h`, `dashboard/servidor.py`
+  (función de validación) y `pipeline/inferencia_local.py`.
+- **Revertir:** reemplazar `docs/CONTRATO.md` y los tres sitios anteriores.
+
+## 2026-10-15 · herramientas
+
+- **arduino-cli:** la URL "latest" entregó `1.5.2-rc.1`. Se dejó así: la regla "nada alpha" del
+  pedido es para el core esp32, no para la CLI. Core instalado: `esp32:esp32@3.3.12` (estable,
+  índice `package_esp32_index.json`, que no publica versiones alpha ni RC).
+- **Revertir:** descargar una CLI estable desde https://github.com/arduino/arduino-cli/releases.
