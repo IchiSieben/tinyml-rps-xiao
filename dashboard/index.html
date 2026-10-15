@@ -143,6 +143,12 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
   background:transparent;transition:background .3s}
 #overlay.on{background:color-mix(in srgb,var(--bg) 70%,transparent)}
 body:has(#capo.abierto) #overlay.on{background:transparent}
+#escena{transition:opacity .25s}
+body:has(#overlay.on):not(:has(#capo.abierto)) #escena{opacity:.07}
+.duelo{display:flex;align-items:center;justify-content:center;gap:.25em}
+.duelo .lado{display:flex;flex-direction:column;align-items:center;line-height:1}
+.duelo .lado b{font-size:clamp(1.2rem,4.5vmin,3rem);font-weight:700;letter-spacing:0;color:var(--tx2);margin-top:.7em}
+.duelo .vs{font-size:.28em;font-weight:700;color:var(--tx2);letter-spacing:0}
 .msg.gana,.msg.pierde,.msg.empata{font-size:clamp(5rem,28vmin,20rem);letter-spacing:.08em;line-height:1.15}
 .msg{font-size:clamp(2.6rem,13vmin,10rem);font-weight:800;letter-spacing:-.03em;line-height:1.02;text-shadow:var(--glow);text-transform:var(--mayus);
   animation:msg .5s cubic-bezier(.3,1.5,.5,1) both}
@@ -459,7 +465,16 @@ RPS.mensaje=function(texto,o){
   o=o||{};
   var ov=$("overlay");clearTimeout(msgTimer);ov.textContent="";
   var d=document.createElement("div");d.className="msg"+(o.estilo?" "+o.estilo:"");
-  d.appendChild(document.createTextNode(texto));
+  if(o.duelo){
+    var du=document.createElement("span");du.className="duelo";
+    o.duelo.forEach(function(l,i){
+      if(i){var v=document.createElement("span");v.className="vs";v.textContent="vs";du.appendChild(v)}
+      var c=document.createElement("span");c.className="lado";
+      var e=document.createElement("span");e.textContent=l[0];var b=document.createElement("b");b.textContent=l[1];
+      c.appendChild(e);c.appendChild(b);du.appendChild(c);
+    });
+    d.appendChild(du);
+  }else d.appendChild(document.createTextNode(texto));
   if(o.sub){var s=document.createElement("small");s.textContent=o.sub;d.appendChild(s)}
   ov.appendChild(d);ov.classList.add("on");
   var ms=o.ms===undefined?1800:o.ms;if(rapido)ms=Math.max(ms*.4,400);
@@ -819,7 +834,7 @@ async function partida(uForzado,pForzada,confForzada){
     if(invActiva)S.konami--;
     guardar();pintar();
     res={usuario:u.clase,placa:p,resultado:r>0?"gana":r<0?"pierde":"empate"};
-    R.mensaje(R.emoji(u.clase)+"  "+R.emoji(p),{ms:rapido?700:2300,estilo:est,sub:"Tú vs Placa · "+txt+" "+aviso});
+    R.mensaje(R.emoji(u.clase)+"  "+R.emoji(p),{duelo:[[R.emoji(u.clase),"Tú"],[R.emoji(p),"Placa"]],ms:rapido?700:2300,estilo:est,sub:"Tú vs Placa · "+txt+" "+aviso});
     await espera(rapido?700:2400);
     if(invActiva&&S.konami===0){
       R.mensaje("Se acabó el hechizo",{ms:rapido?500:2200,sub:"La placa vuelve a ser mortal. Suerte, causa"});await espera(rapido?500:2300);
