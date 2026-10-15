@@ -1,0 +1,10 @@
+flask>=3.0
+pyserial>=3.5
+requests>=2.31
+python-dotenv>=1.0
+numpy>=1.26
+pillow>=10.0
+opencv-python>=4.8
+pytest>=8.0
+# Inferencia TFLite: ai-edge-litert si existe para tu Python; si no, tensorflow
+ai-edge-litert>=1.0; python_version < "3.13"
