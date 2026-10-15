@@ -53,4 +53,4 @@ def test_indice_sin_cdn(cliente):
     html = r.get_data(as_text=True)
     assert r.status_code == 200 and "<html" in html
     assert not re.search(r'<(script|link)[^>]+(src|href)=["\']https?://', html)
-    assert "—" not in html
+    assert chr(0x2014) not in html
