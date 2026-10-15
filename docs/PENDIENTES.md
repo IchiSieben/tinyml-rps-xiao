@@ -95,3 +95,39 @@ python pipeline/inferencia_local.py --modelo modelos/rps_int8.tflite --etiquetas
    del dashboard con la placa real.
 2. Opcional, como pide la guía: subir `modelos/rps_int8.tflite` a SenseCraft (Espacio de trabajo > Subir modelo).
 3. Ensayar `docs/GUION.md` una vez de punta a punta.
+
+## 9. Gestos extra: cuántas fotos y cómo
+
+Dos gestos opcionales además de las cuatro clases base: `metal` (🤘) y `pulgar` (👍). No hace falta
+tocar código: las clases nuevas entran solo como carpeta o ZIP, y el dashboard las muestra solo.
+
+1. **Cuántas fotos.** Las mismas reglas de variedad del paso 2 (dos o tres personas, mano izquierda y
+   derecha, 15 a 40 cm, dos fondos, luz natural y de foco) y **al menos 60 por clase**, igual que las
+   cuatro base. Con menos de 30 útiles `preparar_dataset.py` avisa.
+2. **Nombre del ZIP = nombre de la clase**, en minúsculas y sin tildes: `metal.zip`, `pulgar.zip`
+   (solo `a-z`, `0-9` y `_`, hasta 24 caracteres). El script avisa si el nombre no cumple el contrato.
+   Pon los ZIP en `datos/zips/`.
+3. **`nada` tiene que seguir existiendo**: es lo que evita que el LED o el juego reaccionen al fondo.
+   Sin mano, `nada` debe ganar; asegúrate de tener fotos de fondo vacío con cada fondo y luz que uses.
+4. **Más clases bajan la exactitud.** Seis clases se confunden más que cuatro (`metal` con `tijera`,
+   `pulgar` con `piedra`). Tras entrenar, vuelve a revisar la matriz de confusión del 20 % de prueba
+   (`entrenar.py --probar` la guarda en `resultados/entrenamiento_<fecha>.json`) y, si una pareja se
+   mezcla, agrega fotos de esas dos clases con variedad de ángulos.
+5. **Comando exacto de preparar con las seis clases:**
+
+```powershell
+python pipeline/preparar_dataset.py --zips datos/zips/piedra.zip datos/zips/papel.zip datos/zips/tijera.zip datos/zips/nada.zip datos/zips/metal.zip datos/zips/pulgar.zip --dry-run
+python pipeline/preparar_dataset.py --zips datos/zips/piedra.zip datos/zips/papel.zip datos/zips/tijera.zip datos/zips/nada.zip datos/zips/metal.zip datos/zips/pulgar.zip
+```
+
+   Después siguen igual `subir_edge_impulse.py`, `entrenar.py --probar` y `descargar_libreria.py --tflite`
+   (los tres leen las clases de las carpetas y del proyecto, no de una lista fija).
+6. **Parchear con el LED en dos clases:**
+
+```powershell
+python firmware/parchear_libreria.py modelos/rps_arduino.zip --led-clases "tijera,metal" --umbral 0.60
+```
+
+   Para la webcam: `python pipeline/inferencia_local.py ... --led-clases "tijera,metal"`. Para ensayar el
+   dashboard sin placa: `python dashboard/servidor.py --simular --guion "piedra,papel,metal,pulgar,nada" --led-clases "tijera,metal"`
+   (`--guion-bucle` lo repite; cada elemento dura 1.6 s, o `metal:3` para 3 s).
