@@ -83,7 +83,7 @@ def test_preparar_dataset_reparto(tmp_path):
     assert Image.open(next((salida / "training" / "piedra").glob("*.jpg"))).size == (96, 96)
     filas = list(csv.DictReader(open(salida / "manifiesto.csv", encoding="utf-8")))
     assert len(filas) == 20
-    assert "minimo recomendado 30" in r.stdout and "invalida" in r.stdout
+    assert "mínimo recomendado 30" in r.stdout and "inválida" in r.stdout
 
 
 def test_preparar_dataset_dry_run_no_escribe(tmp_path):
@@ -207,3 +207,11 @@ def test_subir_dry_run_seis_clases(tmp_path):
     assert "Total: 168 archivos" in r.stdout
     for c in SEIS:
         assert any(l.split()[:2] == ["training", c] and l.split()[2] == "25" for l in r.stdout.splitlines()), c
+
+
+def test_linea_contrato_led_solo_en_lista_pedida():
+    from inferencia_local import linea_contrato, unir_clases_led
+    etq = ["metal", "nada", "papel", "piedra", "pulgar", "tijera"]
+    p = [.01, .01, .01, .01, .01, .95]
+    reg = linea_contrato("webcam", 1, 1, etq, p, 1, 1, 0.6, clases_led=unir_clases_led(None, "metal"))
+    assert reg["clase"] == "tijera" and reg["led"] is False

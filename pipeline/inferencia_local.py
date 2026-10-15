@@ -99,14 +99,14 @@ def unir_clases_led(una, varias):
     return res
 
 
-def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral, clase_led="tijera", clases_led=None):
+def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral, clase_led=None, clases_led=None):
     """Registro del contrato con TODAS las etiquetas del modelo, en orden de visualizacion.
     El LED se enciende si la clase ganadora esta en clase_led / clases_led y conf >= umbral."""
     d = {e: float(v) for e, v in zip(etiquetas, p)}
     probs = {e: round(d[e], 4) for e in orden_clases(d)}
     clase = max(d, key=d.get)
     conf = round(d[clase], 4)
-    leds = set(unir_clases_led(clase_led, ",".join(clases_led) if clases_led else ""))
+    leds = set(unir_clases_led(clase_led, ",".join(clases_led) if clases_led else "")) or {"tijera"}
     return {"v": 1, "fuente": fuente, "n": n, "t_ms": t_ms, "clase": clase, "confianza": conf,
             "probs": probs, "lat_ms": {"dsp": dsp, "inf": inf}, "led": bool(clase in leds and conf >= umbral),
             "umbral": umbral}
@@ -116,7 +116,7 @@ def modo_webcam(args, clf):
     import cv2
     cap = cv2.VideoCapture(args.camara)
     if not cap.isOpened():
-        raise SystemExit(f"No se pudo abrir la camara {args.camara}")
+        raise SystemExit(f"No se pudo abrir la cámara {args.camara}")
     sesion = None
     aviso = False
     url = ""
@@ -129,7 +129,7 @@ def modo_webcam(args, clf):
         while True:
             ok, bgr = cap.read()
             if not ok:
-                print("Camara sin imagen, saliendo", file=sys.stderr)
+                print("Cámara sin imagen, saliendo", file=sys.stderr)
                 break
             rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             p, dsp, inf = clf.probs(rgb)
@@ -240,7 +240,7 @@ def evaluar_carpeta(clf, raiz, salida, nombre=""):
     aciertos = sum(r == p for r, p in zip(reales, preds))
     acc = aciertos / len(reales)
     print(f"Exactitud: {acc:.4f} ({aciertos}/{len(reales)}) rango de entrada: {clf.rango}")
-    print("Matriz de confusion (filas = real, columnas = prediccion)")
+    print("Matriz de confusión (filas = real, columnas = predicción)")
     print("\t" + "\t".join(cols))
     for i, fila in enumerate(filas):
         print(f"{fila}\t" + "\t".join(str(v) for v in cm[i]))
@@ -265,7 +265,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Inferencia local con .tflite: webcam o evaluacion de carpeta/ZIP.")
     ap.add_argument("--modelo", required=True, help="Ruta del .tflite")
     ap.add_argument("--etiquetas", default="", help="Lista 'a,b,c', archivo de texto o model_metadata.h. Orden = orden de salida del modelo")
-    ap.add_argument("--camara", type=int, default=0, help="Indice de camara OpenCV (defecto 0)")
+    ap.add_argument("--camara", type=int, default=0, help="Índice de cámara OpenCV (defecto 0)")
     ap.add_argument("--umbral", type=float, default=0.6, help="Confianza minima para el LED logico (defecto 0.6)")
     ap.add_argument("--led-clase", default=None, help="Clase que enciende el LED logico (defecto tijera si no se pasa ninguna bandera de LED)")
     ap.add_argument("--led-clases", default="", help='Lista de clases que encienden el LED logico, ej. "tijera,metal" (se une con --led-clase)')
