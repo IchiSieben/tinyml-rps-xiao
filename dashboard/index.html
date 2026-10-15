@@ -141,7 +141,8 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 /* ---------- Capas: mensajes, fin, confeti ---------- */
 #overlay{position:fixed;inset:0;z-index:55;display:grid;place-items:center;pointer-events:none;text-align:center;padding:1rem;
   background:transparent;transition:background .3s}
-#overlay.on{background:color-mix(in srgb,var(--bg) 62%,transparent)}
+#overlay.on{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+.msg.gana,.msg.pierde,.msg.empata{font-size:clamp(5rem,28vmin,20rem);letter-spacing:.08em;line-height:1.15}
 .msg{font-size:clamp(2.6rem,13vmin,10rem);font-weight:800;letter-spacing:-.03em;line-height:1.02;text-shadow:var(--glow);text-transform:var(--mayus);
   animation:msg .5s cubic-bezier(.3,1.5,.5,1) both}
 .msg small{display:block;font-size:clamp(1.1rem,3.8vmin,2.6rem);font-weight:600;color:var(--tx2);letter-spacing:0;margin-top:.5rem;text-transform:none}
