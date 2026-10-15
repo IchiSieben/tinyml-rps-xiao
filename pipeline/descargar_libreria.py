@@ -21,6 +21,7 @@ def main(argv=None):
     ap.add_argument("--tflite", action="store_true", help="Descargar tambien el .tflite int8 (para inferencia_local.py y SenseCraft)")
     ap.add_argument("--proyecto", default="", help="ID de proyecto (defecto EI_PROJECT_ID o el visible con la clave)")
     ap.add_argument("--led-clase", default="tijera", help="Clase que enciende el LED en el comando sugerido (defecto tijera)")
+    ap.add_argument("--led-clases", default="", help='Lista de clases para el LED en el comando sugerido, ej. "tijera,metal" (reemplaza a --led-clase)')
     ap.add_argument("--umbral", type=float, default=0.60, help="Umbral en el comando sugerido (defecto 0.60)")
     agregar_args_comunes(ap)
     args = ap.parse_args(argv)
@@ -58,7 +59,8 @@ def main(argv=None):
         print(f"  {tflite_destino}")
 
     print("Siguiente:")
-    print(f"  python firmware/parchear_libreria.py modelos/{zip_destino.name} --led-clase {args.led_clase} --umbral {args.umbral:.2f}")
+    led = f'--led-clases "{args.led_clases}"' if args.led_clases else f"--led-clase {args.led_clase}"
+    print(f"  python firmware/parchear_libreria.py modelos/{zip_destino.name} {led} --umbral {args.umbral:.2f}")
     if args.dry_run:
         print("[dry-run] No se envio nada.")
 

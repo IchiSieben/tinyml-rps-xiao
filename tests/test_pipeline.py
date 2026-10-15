@@ -149,3 +149,61 @@ def test_linea_contrato_orden_fijo():
     assert reg["led"] is False
     assert linea_contrato("webcam", 0, 5, ["nada", "papel", "piedra", "tijera"], [0.1, 0.2, 0.6, 0.1], 1, 2, 0.6,
                           clase_led="piedra")["led"] is True
+
+
+SEIS = ("piedra", "papel", "tijera", "nada", "metal", "pulgar")
+
+
+def test_preparar_dataset_seis_clases_con_zips(tmp_path):
+    import zipfile
+    crudas = tmp_path / "crudas"
+    crear_imagenes(crudas, 10, SEIS)
+    zips = []
+    for c in ("metal", "pulgar"):  # las clases nuevas entran solo como ZIP, sin tocar codigo
+        zp = tmp_path / f"{c}.zip"
+        with zipfile.ZipFile(zp, "w") as z:
+            for f in sorted((crudas / c).glob("*.jpg")):
+                z.write(f, f"{c}/{f.name}")
+        zips.append(str(zp))
+        for f in (crudas / c).glob("*.jpg"):
+            f.unlink()
+        (crudas / c).rmdir()
+    salida = tmp_path / "listo"
+    r = correr("preparar_dataset.py", "--entrada", str(crudas), "--zips", *zips, "--salida", str(salida))
+    assert r.returncode == 0, r.stderr
+    for c in SEIS:
+        assert len(list((salida / "training" / c).glob("*.jpg"))) == 8, c
+        assert len(list((salida / "testing" / c).glob("*.jpg"))) == 2, c
+    assert "Aviso: el nombre de clase" not in r.stdout
+
+
+def test_preparar_dataset_avisa_nombre_fuera_de_contrato(tmp_path):
+    crudas = tmp_path / "crudas"
+    crear_imagenes(crudas, 6, ("piedra", "Mano-X"))
+    r = correr("preparar_dataset.py", "--entrada", str(crudas), "--dry-run")
+    assert r.returncode == 0 and "'mano-x' no cumple el contrato" in r.stdout
+
+
+def test_linea_contrato_seis_etiquetas():
+    from inferencia_local import linea_contrato
+    sys.path.insert(0, str(RAIZ / "dashboard"))
+    from contrato import validar
+    etq = ["metal", "nada", "papel", "piedra", "pulgar", "tijera"]  # orden alfabetico de Edge Impulse
+    p = [0.7, 0.02, 0.03, 0.05, 0.1, 0.1]
+    reg = linea_contrato("webcam", 1, 10, etq, p, 3, 4, 0.6, clases_led=["tijera", "metal"])
+    assert list(reg["probs"]) == ["piedra", "papel", "tijera", "nada", "metal", "pulgar"]
+    assert reg["clase"] == "metal" and reg["led"] is True
+    assert validar(reg)["clase"] == "metal"
+    sin_nada = linea_contrato("webcam", 1, 10, ["metal", "papel"], [0.8, 0.2], 3, 4, 0.6, clase_led="tijera")
+    assert list(sin_nada["probs"]) == ["papel", "metal"] and sin_nada["led"] is False and validar(sin_nada)
+
+
+def test_subir_dry_run_seis_clases(tmp_path):
+    listo = tmp_path / "listo"
+    crear_imagenes(listo / "training", 25, SEIS)
+    crear_imagenes(listo / "testing", 3, SEIS)
+    r = correr("subir_edge_impulse.py", "--dry-run", "--datos", str(listo), env_extra={"EI_API_KEY": CLAVE})
+    assert r.returncode == 0, r.stderr
+    assert "Total: 168 archivos" in r.stdout
+    for c in SEIS:
+        assert any(l.split()[:2] == ["training", c] and l.split()[2] == "25" for l in r.stdout.splitlines()), c

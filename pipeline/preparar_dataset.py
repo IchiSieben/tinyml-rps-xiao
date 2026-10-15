@@ -11,6 +11,7 @@ import argparse
 import csv
 import io
 import random
+import re
 import sys
 import unicodedata
 import zipfile
@@ -21,6 +22,7 @@ from PIL import Image
 
 EXT_IMG = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 MIN_POR_CLASE = 30
+ETIQUETA = re.compile(r"^[a-z0-9_]{1,24}$")  # regla del contrato (docs/CONTRATO.md)
 
 
 def sin_acentos(s):
@@ -143,6 +145,12 @@ def main(argv=None):
         n = len(d["training"]) + len(d["testing"])
         if n < MIN_POR_CLASE:
             print(f"Aviso: la clase '{c}' tiene {n} imagenes utiles (minimo recomendado {MIN_POR_CLASE})")
+    for c in plan:
+        if not ETIQUETA.match(c):
+            print(f"Aviso: el nombre de clase '{c}' no cumple el contrato (minusculas ASCII, digitos y _, hasta 24); "
+                  "renombra la carpeta o el ZIP antes de subir")
+    if len(plan) > 16:
+        print(f"Aviso: hay {len(plan)} clases y el contrato admite hasta 16")
     valid = total_leido - len(invalidas)
     if valid and duplicadas / valid > 0.2:
         print(f"Aviso: {duplicadas / valid:.0%} de las imagenes eran casi duplicadas; captura mas variedad (angulos, fondos, luz)")

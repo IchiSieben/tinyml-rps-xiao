@@ -18,10 +18,11 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "dashboard"))
+from contrato import orden_clases  # noqa: E402  (una sola regla de orden para todo el repo)
 from tflite_util import (cargar_interprete, cuantizar, detectar_rango,  # noqa: E402
                          info_entrada, info_salida, predecir)
 
-ORDEN_CONTRATO = ["piedra", "papel", "tijera", "nada"]
 EXT_IMG = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
@@ -88,14 +89,26 @@ class Clasificador:
         return p, int((t1 - t0) * 1000), int((t2 - t1) * 1000)
 
 
-def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral, clase_led="tijera"):
+def unir_clases_led(una, varias):
+    """--led-clase y --led-clases ("a,b") se unen sin repetir; vacio = ninguna."""
+    res = []
+    for c in ([una] if una else []) + (varias or "").split(","):
+        c = c.strip()
+        if c and c not in res:
+            res.append(c)
+    return res
+
+
+def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral, clase_led="tijera", clases_led=None):
+    """Registro del contrato con TODAS las etiquetas del modelo, en orden de visualizacion.
+    El LED se enciende si la clase ganadora esta en clase_led / clases_led y conf >= umbral."""
     d = {e: float(v) for e, v in zip(etiquetas, p)}
-    orden = ORDEN_CONTRATO if set(ORDEN_CONTRATO) <= set(etiquetas) else list(etiquetas)
-    probs = {e: round(d[e], 4) for e in orden}
+    probs = {e: round(d[e], 4) for e in orden_clases(d)}
     clase = max(d, key=d.get)
     conf = round(d[clase], 4)
+    leds = set(unir_clases_led(clase_led, ",".join(clases_led) if clases_led else ""))
     return {"v": 1, "fuente": fuente, "n": n, "t_ms": t_ms, "clase": clase, "confianza": conf,
-            "probs": probs, "lat_ms": {"dsp": dsp, "inf": inf}, "led": bool(clase == clase_led and conf >= umbral),
+            "probs": probs, "lat_ms": {"dsp": dsp, "inf": inf}, "led": bool(clase in leds and conf >= umbral),
             "umbral": umbral}
 
 
@@ -120,7 +133,8 @@ def modo_webcam(args, clf):
                 break
             rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             p, dsp, inf = clf.probs(rgb)
-            reg = linea_contrato("webcam", n, int((time.time() - t0) * 1000), clf.etiquetas, p, dsp, inf, args.umbral, args.led_clase)
+            reg = linea_contrato("webcam", n, int((time.time() - t0) * 1000), clf.etiquetas, p, dsp, inf, args.umbral,
+                                 clases_led=unir_clases_led(args.led_clase, args.led_clases))
             linea = json.dumps(reg, separators=(",", ":"))
             print(linea, flush=True)
             if sesion:
@@ -253,7 +267,8 @@ def main(argv=None):
     ap.add_argument("--etiquetas", default="", help="Lista 'a,b,c', archivo de texto o model_metadata.h. Orden = orden de salida del modelo")
     ap.add_argument("--camara", type=int, default=0, help="Indice de camara OpenCV (defecto 0)")
     ap.add_argument("--umbral", type=float, default=0.6, help="Confianza minima para el LED logico (defecto 0.6)")
-    ap.add_argument("--led-clase", default="tijera", help="Clase que enciende el LED logico (defecto tijera, igual que el firmware)")
+    ap.add_argument("--led-clase", default=None, help="Clase que enciende el LED logico (defecto tijera si no se pasa ninguna bandera de LED)")
+    ap.add_argument("--led-clases", default="", help='Lista de clases que encienden el LED logico, ej. "tijera,metal" (se une con --led-clase)')
     ap.add_argument("--enviar", default="", help="URL del dashboard, ej. http://127.0.0.1:5000")
     ap.add_argument("--mostrar", action="store_true", help="Ventana de vista previa con la etiqueta")
     ap.add_argument("--rango", choices=["01", "0255"], help="Forzar rango de pixeles de entrada (defecto: heuristica segun scale/zero_point)")
@@ -261,6 +276,8 @@ def main(argv=None):
     ap.add_argument("--salida", default="", help="Directorio para CSV y PNG de la evaluacion")
     args = ap.parse_args(argv)
 
+    if not args.led_clase and not args.led_clases:
+        args.led_clase = "tijera"
     etiquetas = leer_etiquetas(args.etiquetas, args.modelo)
     clf = Clasificador(args.modelo, etiquetas, args.rango)
     e = clf.ent

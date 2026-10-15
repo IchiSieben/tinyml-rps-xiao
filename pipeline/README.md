@@ -33,7 +33,10 @@ python firmware/parchear_libreria.py modelos/rps_arduino.zip --led-clase tijera 
 ```
 
 Edge Impulse ordena las etiquetas alfabéticamente (`nada, papel, piedra, tijera`); ese es el orden de salida del
-modelo. `inferencia_local.py` traduce por nombre y emite siempre `piedra, papel, tijera, nada`.
+modelo. `inferencia_local.py` traduce por nombre y emite todas las etiquetas del modelo en orden de
+visualización: `piedra, papel, tijera, nada` (las que existan) y luego el resto. Las clases extra
+(`metal`, `pulgar`) entran solo con una carpeta o ZIP nuevo; ver "Gestos extra" en `docs/PENDIENTES.md`.
+`--led-clases "tijera,metal"` enciende el LED lógico con varias clases.
 
 ## Banderas principales
 
