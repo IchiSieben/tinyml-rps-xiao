@@ -26,13 +26,13 @@ if (-not $Cli) {
 if ($Core -match "alpha|rc|beta") { Write-Error "Version de core no estable ($Core): usa una 3.3.x estable." }
 if (-not $PruebaEntorno -and -not $Zip) { Write-Error "Falta -Zip con la libreria parcheada, o usa -PruebaEntorno." }
 
-function Cli { & $Cli @args; if ($LASTEXITCODE -ne 0) { throw "arduino-cli fallo: $args" } }
+function Invoke-ArduinoCli { & $Cli @args; if ($LASTEXITCODE -ne 0) { throw "arduino-cli fallo: $args" } }
 
 try { & $Cli config init --overwrite *> $null } catch {}
 try { & $Cli config add board_manager.additional_urls $UrlIndice *> $null } catch {}
-Cli core update-index
+Invoke-ArduinoCli core update-index
 if (-not ((& $Cli core list) -match "esp32:esp32\s+$([regex]::Escape($Core))")) {
-    Cli core install "esp32:esp32@$Core"
+    Invoke-ArduinoCli core install "esp32:esp32@$Core"
 }
 
 $Tmp = Join-Path ([IO.Path]::GetTempPath()) ("xiao_" + [guid]::NewGuid().ToString("N"))
@@ -50,7 +50,7 @@ try {
         $txt = $txt -replace '(?m)^[ \t]*#define[ \t]+CAMERA_MODEL_', '//#define CAMERA_MODEL_'
         $txt = $txt -replace '(?m)^//[ \t]*#define[ \t]+CAMERA_MODEL_XIAO_ESP32S3', '#define CAMERA_MODEL_XIAO_ESP32S3'
         [IO.File]::WriteAllText($ino, $txt, (New-Object Text.UTF8Encoding $false))
-        Cli compile --fqbn $Fqbn --output-dir (Join-Path $Build "prueba_entorno") $Dest
+        Invoke-ArduinoCli compile --fqbn $Fqbn --output-dir (Join-Path $Build "prueba_entorno") $Dest
         return
     }
 
@@ -65,7 +65,7 @@ try {
     if (-not (Select-String -Path $ino -Pattern "xiao_pins.h" -Quiet)) {
         throw "El ZIP no esta parcheado: corre parchear_libreria.py primero."
     }
-    Cli compile --fqbn $Fqbn --library $LibDir --output-dir $Build $Sketch
+    Invoke-ArduinoCli compile --fqbn $Fqbn --library $LibDir --output-dir $Build $Sketch
     Write-Host "Binarios en $Build"
 }
 finally {
