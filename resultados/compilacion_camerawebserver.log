@@ -1,0 +1,17 @@
+fecha: 2026-10-15
+arduino-cli: 1.5.2-rc.1
+core: esp32:esp32@3.3.12
+FQBN: esp32:esp32:XIAO_ESP32S3:PSRAM=opi
+comando: bash firmware/compilar.sh --prueba-entorno (CameraWebServer, sin credenciales WiFi)
+Sketch uses 1005625 bytes (30%) of program storage space. Maximum is 3342336 bytes.
+----
+
+Downloading index: package_index.tar.bz2 0 B / 110.74 KiB    0.00%
+Downloading index: package_index.tar.bz2 0 B / 110.74 KiB    0.00%
+Downloading index: package_index.tar.bz2 99.16 KiB / 110.74 KiB   89.54%
+Downloading index: package_index.tar.bz2 downloaded
+
+Downloading index: package_esp32_index.json 0 B / 636.15 KiB    0.00%
+Downloading index: package_esp32_index.json downloaded
+Sketch uses 1005625 bytes (30%) of program storage space. Maximum is 3342336 bytes.
+Global variables use 68656 bytes (20%) of dynamic memory, leaving 259024 bytes for local variables. Maximum is 327680 bytes.
