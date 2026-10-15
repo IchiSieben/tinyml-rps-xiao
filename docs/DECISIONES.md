@@ -52,3 +52,16 @@ Formato: fecha · tarea · qué se eligió · por qué · qué se descartó · c
   de clases extra (hay que editar código por cada gesto nuevo).
 - **Revertir:** volver a la tupla fija de cuatro clases en `dashboard/contrato.py` y restaurar la
   línea `del falta["probs"]["nada"]` en la prueba.
+
+## 2026-10-15 · reglas del juego y easter eggs en el dashboard
+
+- **Qué:** aura +15 (+5 si confianza >= 0.85) al ganar, -10 al perder, +2 al empatar; al llegar a 100 sale
+  FULL AURA y baja a 50. Un empate no rompe la racha de victorias pero sí corta las derrotas seguidas.
+  Con 5 derrotas seguidas sale un mensaje de consuelo (el contador se reinicia). La placa invencible
+  (Konami) cuenta solo partidas puntuadas; si no se ve la mano no se descuenta.
+- **QR:** generador propio de unas 60 líneas (versión 3-L, modo byte, máscara 0 fija). Admite URLs de
+  hasta 53 bytes; si fuera más larga, el Fin de clase muestra solo la URL en grande.
+- **Por qué:** cumplir el pedido sin dependencias y sin CDN; todo probable con `--guion` y `?rapido=1`.
+- **Descartado:** elegir la mejor máscara por penalización (más código sin ganancia visible); librería de QR.
+- **Revertir:** quitar el contenido de `<style id="css-juego">` y `<script id="js-juego">`; el núcleo UX sigue
+  funcionando sin el juego.
