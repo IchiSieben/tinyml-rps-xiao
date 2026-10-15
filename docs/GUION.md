@@ -1,4 +1,4 @@
-# Guion de la demo (4 minutos)
+# Guion de la demo (4 minutos, 4:30 con las sorpresas)
 
 Demo en vivo de clasificación de gestos de piedra, papel o tijera con TinyML (aprendizaje
 automático en microcontroladores) sobre una XIAO ESP32S3 Sense. Pensado para presentarlo en el
@@ -42,6 +42,15 @@ Mostrar la matriz de confusión del conjunto de prueba (`resultados/`).
 3. Tijera sostenida: el LED de la placa se enciende (umbral 60 %). Explicar que el LED es activo en
    bajo: se enciende escribiendo `LOW` en el GPIO 21 (pin de entrada y salida de propósito general).
 4. Modo "Jugar contra la XIAO": dos rondas con alguien del público.
+
+### Opcional: 30 s de sorpresas (el total queda en 4:30)
+
+Solo si la clase va bien de tiempo y hay modelo con gestos extra (ver `docs/SECRETOS.md`; mejor no
+leerlo antes si quieres sorprenderte tú también):
+
+1. Pedir a alguien que haga el gesto de metal (🤘) y sostenerlo un segundo: aparece "ROCK ON" y el tema arcade.
+2. Ganar tres veces seguidas, o dejar que el medidor de aura llegue a 100: "FULL AURA" con confeti.
+3. Cerrar con la tecla F: resumen de la clase y el QR del repositorio.
 
 ## 3:00 · Qué aprendimos y límites (45 s)
 
