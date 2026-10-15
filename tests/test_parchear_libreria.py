@@ -117,3 +117,15 @@ def test_salida_json_sin_clases_fijas():
     h = (RAIZ / "firmware" / "salida_json.h").read_text(encoding="utf-8")
     assert "SJ_CLASES" not in h and "EI_CLASSIFIER_LABEL_COUNT" in h
     assert "sj_en_lista" in h
+
+
+def test_salida_json_bien_formada():
+    h = (RAIZ / "firmware" / "salida_json.h").read_text(encoding="utf-8")
+    abre = sum(1 for l in h.splitlines() if l.lstrip().startswith(("#if", "#ifndef", "#ifdef")))
+    cierra = sum(1 for l in h.splitlines() if l.lstrip().startswith("#endif"))
+    assert abre == cierra and h.rstrip().endswith("#endif")
+    assert h.count("static inline void emitir_json") == 1 and "\x00" not in h
+    for l in h.splitlines():  # ninguna cadena C parte la linea (salto real dentro de comillas)
+        sin = l.replace("\\\"", "").replace("'\"'", "")
+        if "//" not in sin:
+            assert sin.count('"') % 2 == 0, l

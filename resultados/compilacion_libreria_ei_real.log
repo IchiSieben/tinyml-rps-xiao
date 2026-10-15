@@ -1,16 +1,13 @@
-# Compilacion contra libreria Edge Impulse REAL (clasificacion de imagen)
+# Compilacion contra libreria Edge Impulse REAL (clasificacion de imagen), segunda corrida con clases abiertas
 Fecha: 2026-10-15
 Libreria: https://github.com/Rishith-17/namesthe  commit b13924bca08a2fa04ae15d7b01b78da37c3f7959 (rishi2458-project-1_inferencing)
-Etiquetas: "<etiqueta A>", "<etiqueta B>" (nombres de personas, omitidos)  (--led-clase "<etiqueta B>" --umbral 0.60)
+Etiquetas: "<etiqueta A>", "<etiqueta B>" (nombres de personas, omitidos; no cumplen el contrato, el parcheador solo avisa)
 FQBN: esp32:esp32:XIAO_ESP32S3:PSRAM=opi   Core: esp32:esp32@3.3.12
-Comando: python firmware/parchear_libreria.py rishi2458-project-1_inferencing.zip --led-clase "<etiqueta B>" --umbral 0.60
+Cambios probados: salida_json.h emite probs con todas las etiquetas del modelo (bucle sobre EI_CLASSIFIER_LABEL_COUNT) y actualizar_led acepta lista separada por comas.
+Comando: python firmware/parchear_libreria.py rishi2458-project-1_inferencing.zip --led-clases "<etiqueta A>,<etiqueta B>" --umbral 0.60
          powershell -NoProfile -ExecutionPolicy Bypass -File firmware/compilar.ps1 -Zip rishi2458-project-1_inferencing_xiao.zip
-Nota: una libreria mas antigua (martishin/tinyml-digits-recognition f6ed47c, SDK viejo) fallo solo en edge-impulse-sdk/.../conv.cpp (inicializadores designados, gcc 14), no en el sketch parcheado.
-Resultado final: Sketch uses 436483 bytes (13%) of program storage space. Maximum is 3342336 bytes.
------ log -----
-
-
-Sketch uses 436483 bytes (13%) of program storage space. Maximum is 3342336 bytes.
+Nota: una primera corrida de esta sesion fallo por un error de edicion propio en salida_json.h (#endif sobrante); se corrigio y se agrego una prueba (test_salida_json_bien_formada).
+Resultado final: Sketch uses 437163 bytes (13%) of program storage space. Maximum is 3342336 bytes.
 Global variables use 39328 bytes (12%) of dynamic memory, leaving 288352 bytes for local variables. Maximum is 327680 bytes.
-Binarios en C:\Users\Usuario\Documents\Portfolio\proyecto integrado upch\tinyml-rps-xiao\build
+Binarios en build/ (no versionado)
 exit=0
