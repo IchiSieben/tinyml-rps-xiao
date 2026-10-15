@@ -1,12 +1,22 @@
 """Validacion estricta del contrato de datos (docs/CONTRATO.md)."""
 import json
+import re
 
-CLASES = ("piedra", "papel", "tijera", "nada")
+BASE = ("piedra", "papel", "tijera", "nada")
+CLASES = BASE  # alias historico
+ETIQUETA = re.compile(r"^[a-z0-9_]{1,24}$")
+MIN_CLASES, MAX_CLASES = 2, 16
 FUENTES = ("xiao", "webcam", "simulacion")
 
 
 def _num(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def orden_clases(claves):
+    """Orden de visualizacion: primero las BASE presentes, luego el resto en el orden recibido."""
+    claves = list(claves)
+    return [c for c in BASE if c in claves] + [c for c in claves if c not in BASE]
 
 
 def validar(linea_o_dict):
@@ -28,11 +38,14 @@ def validar(linea_o_dict):
     conf = d.get("confianza")
     probs = d.get("probs")
     lat = d.get("lat_ms")
-    if clase not in CLASES or not _num(conf) or not 0 <= conf <= 1:
+    if not isinstance(clase, str) or not _num(conf) or not 0 <= conf <= 1:
         return None
-    if not isinstance(probs, dict) or any(
-        k not in probs or not _num(probs[k]) or not 0 <= probs[k] <= 1 for k in CLASES
-    ):
+    if not isinstance(probs, dict) or not MIN_CLASES <= len(probs) <= MAX_CLASES:
+        return None
+    if any(not isinstance(k, str) or not ETIQUETA.match(k) or not _num(v) or not 0 <= v <= 1
+           for k, v in probs.items()):
+        return None
+    if clase not in probs:
         return None
     if not isinstance(lat, dict) or not _num(lat.get("dsp")) or not _num(lat.get("inf")):
         return None
@@ -47,7 +60,7 @@ def validar(linea_o_dict):
         "t_ms": d["t_ms"],
         "clase": clase,
         "confianza": float(conf),
-        "probs": {k: float(probs[k]) for k in CLASES},
+        "probs": {k: float(probs[k]) for k in orden_clases(probs)},
         "lat_ms": {"dsp": lat["dsp"], "inf": lat["inf"]},
         "led": d["led"],
         "umbral": float(d["umbral"]),

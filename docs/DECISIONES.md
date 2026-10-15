@@ -37,3 +37,18 @@ Formato: fecha · tarea · qué se eligió · por qué · qué se descartó · c
 - **Qué:** `led = (clase == clase_led) y (confianza >= umbral)` en firmware, webcam y simulador
   (antes cada uno usaba una regla distinta). Por defecto `tijera` y 0.6.
 - **Revertir:** `--led-clase` en `servidor.py`, `inferencia_local.py` y `parchear_libreria.py`.
+
+## 2026-10-15 · clases abiertas en el contrato
+
+- **Qué:** `probs` acepta de 2 a 16 etiquetas `[a-z0-9_]` (hasta 24 caracteres); `clase` debe ser una
+  clave de `probs`. Ya no hay cuatro clases fijas. El validador ordena `probs` (piedra, papel,
+  tijera, nada y luego el resto). Para el LED hay lista de clases (`--led-clases "tijera,metal"`).
+- **Prueba existente cambiada:** `tests/test_dashboard.py::test_rechaza_malas` borraba `probs['nada']`
+  y esperaba rechazo; con clases abiertas eso es válido. Ahora borra `probs['tijera']` (la clase
+  ganadora, que sigue siendo inválido), con un comentario de una línea. Los demás casos no cambian.
+- **Por qué:** los gestos extra (`metal`, `pulgar`) se agregan solo con carpetas o ZIP nuevos, y el
+  dashboard debe mostrarlos sin tocar código.
+- **Descartado:** mantener `nada` obligatoria (obliga a todo modelo a tener esa clase); lista cerrada
+  de clases extra (hay que editar código por cada gesto nuevo).
+- **Revertir:** volver a la tupla fija de cuatro clases en `dashboard/contrato.py` y restaurar la
+  línea `del falta["probs"]["nada"]` en la prueba.
