@@ -69,7 +69,7 @@ class Estado:
 E = Estado()
 
 
-def simulador(estado, hz=3.0, parar=None):
+def simulador(estado, hz=3.0, parar=None, clase_led="tijera"):
     n = 0
     t0 = time.time()
     clase = "nada"
@@ -95,7 +95,7 @@ def simulador(estado, hz=3.0, parar=None):
             "v": 1, "fuente": "simulacion", "n": n, "t_ms": int((ahora - t0) * 1000),
             "clase": c, "confianza": conf, "probs": {k: probs[k] for k in CLASES},
             "lat_ms": {"dsp": random.randint(3, 6), "inf": random.randint(150, 220)},
-            "led": c != "nada" and conf >= umbral, "umbral": umbral,
+            "led": c == clase_led and conf >= umbral, "umbral": umbral,
         }
         estado.publicar(validar(d))
         n += 1
@@ -104,6 +104,7 @@ def simulador(estado, hz=3.0, parar=None):
 
 def lector_serie(estado, puerto, baudios):
     import serial
+    ultimo_error = None
     while True:
         try:
             with serial.Serial(puerto, baudios, timeout=1) as s:
@@ -115,8 +116,12 @@ def lector_serie(estado, puerto, baudios):
                     d = validar(raw)
                     if d:
                         estado.publicar(d)
-        except Exception:
+        except Exception as e:
             estado.conectado = False
+            msg = f"serie {puerto}: {e}"
+            if msg != ultimo_error:
+                print(msg, file=sys.stderr, flush=True)
+                ultimo_error = msg
             time.sleep(2)
 
 
@@ -180,14 +185,15 @@ def main():
     g.add_argument("--simular", action="store_true", help="genera inferencias simuladas (~3 Hz)")
     g.add_argument("--serial", metavar="PUERTO", nargs="?", const=os.environ.get("XIAO_PUERTO", ""),
                    help="lee la XIAO por puerto serie (por defecto XIAO_PUERTO del .env)")
+    p.add_argument("--led-clase", default="tijera", help="clase que enciende el LED en la simulacion (defecto tijera)")
     p.add_argument("--baudios", type=int, default=115200, help="velocidad del puerto serie")
     p.add_argument("--puerto-http", type=int, default=5000, help="puerto HTTP del dashboard")
     p.add_argument("--host", default="127.0.0.1", help="direccion donde escucha el servidor")
     a = p.parse_args()
     if a.simular:
         E.fuente = "simulacion"
-        threading.Thread(target=simulador, args=(E,), daemon=True).start()
-    elif "--serial" in sys.argv:
+        threading.Thread(target=simulador, args=(E,), kwargs={"clase_led": a.led_clase}, daemon=True).start()
+    elif a.serial is not None:
         if not a.serial:
             p.error("falta el puerto: usa --serial COM5 o define XIAO_PUERTO en .env")
         E.fuente = "xiao"

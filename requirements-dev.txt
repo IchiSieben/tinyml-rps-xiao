@@ -1,0 +1,3 @@
+-r requirements.txt
+# Solo para la prueba de cuantización con un modelo TFLite generado en el momento
+tensorflow>=2.16

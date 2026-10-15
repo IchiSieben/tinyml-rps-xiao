@@ -88,14 +88,14 @@ class Clasificador:
         return p, int((t1 - t0) * 1000), int((t2 - t1) * 1000)
 
 
-def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral):
+def linea_contrato(fuente, n, t_ms, etiquetas, p, dsp, inf, umbral, clase_led="tijera"):
     d = {e: float(v) for e, v in zip(etiquetas, p)}
     orden = ORDEN_CONTRATO if set(ORDEN_CONTRATO) <= set(etiquetas) else list(etiquetas)
     probs = {e: round(d[e], 4) for e in orden}
     clase = max(d, key=d.get)
     conf = round(d[clase], 4)
     return {"v": 1, "fuente": fuente, "n": n, "t_ms": t_ms, "clase": clase, "confianza": conf,
-            "probs": probs, "lat_ms": {"dsp": dsp, "inf": inf}, "led": bool(conf >= umbral),
+            "probs": probs, "lat_ms": {"dsp": dsp, "inf": inf}, "led": bool(clase == clase_led and conf >= umbral),
             "umbral": umbral}
 
 
@@ -120,7 +120,7 @@ def modo_webcam(args, clf):
                 break
             rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             p, dsp, inf = clf.probs(rgb)
-            reg = linea_contrato("webcam", n, int((time.time() - t0) * 1000), clf.etiquetas, p, dsp, inf, args.umbral)
+            reg = linea_contrato("webcam", n, int((time.time() - t0) * 1000), clf.etiquetas, p, dsp, inf, args.umbral, args.led_clase)
             linea = json.dumps(reg, separators=(",", ":"))
             print(linea, flush=True)
             if sesion:
@@ -253,6 +253,7 @@ def main(argv=None):
     ap.add_argument("--etiquetas", default="", help="Lista 'a,b,c', archivo de texto o model_metadata.h. Orden = orden de salida del modelo")
     ap.add_argument("--camara", type=int, default=0, help="Indice de camara OpenCV (defecto 0)")
     ap.add_argument("--umbral", type=float, default=0.6, help="Confianza minima para el LED logico (defecto 0.6)")
+    ap.add_argument("--led-clase", default="tijera", help="Clase que enciende el LED logico (defecto tijera, igual que el firmware)")
     ap.add_argument("--enviar", default="", help="URL del dashboard, ej. http://127.0.0.1:5000")
     ap.add_argument("--mostrar", action="store_true", help="Ventana de vista previa con la etiqueta")
     ap.add_argument("--rango", choices=["01", "0255"], help="Forzar rango de pixeles de entrada (defecto: heuristica segun scale/zero_point)")

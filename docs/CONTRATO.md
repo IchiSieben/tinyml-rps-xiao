@@ -26,7 +26,7 @@ eventos enviados por el servidor).
 | `confianza` | float | sí | Probabilidad de la clase ganadora. |
 | `probs` | objeto | sí | Probabilidad por clase, las cuatro claves siempre presentes. |
 | `lat_ms` | objeto | sí | `{"dsp": int, "inf": int}`: preprocesado e inferencia en ms. |
-| `led` | bool | sí | Estado lógico del LED (true = encendido), sin importar que sea activo en bajo. |
+| `led` | bool | sí | Estado lógico del LED (true = encendido), sin importar que sea activo en bajo. Regla única en placa, webcam y simulador: `clase == clase_led` y `confianza >= umbral` (por defecto `tijera` y 0.6). |
 | `umbral` | float | sí | Umbral de confianza usado para encender el LED. |
 
 Clases fijas y en este orden: `piedra`, `papel`, `tijera`, `nada`. El orden real de salida del

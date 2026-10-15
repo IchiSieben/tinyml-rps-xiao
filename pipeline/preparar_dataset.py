@@ -63,7 +63,7 @@ def abrir(dato):
 
 def hash_promedio(img):
     g = img.convert("L").resize((8, 8), Image.BILINEAR)
-    px = list(g.getdata())
+    px = list(g.tobytes())
     m = sum(px) / 64
     return sum(1 << i for i, v in enumerate(px) if v >= m)
 

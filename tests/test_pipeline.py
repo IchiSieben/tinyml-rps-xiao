@@ -144,4 +144,8 @@ def test_linea_contrato_orden_fijo():
     from inferencia_local import linea_contrato
     reg = linea_contrato("webcam", 0, 5, ["nada", "papel", "piedra", "tijera"], [0.1, 0.2, 0.6, 0.1], 1, 2, 0.6)
     assert list(reg["probs"]) == ["piedra", "papel", "tijera", "nada"]
-    assert reg["clase"] == "piedra" and reg["led"] is True and reg["v"] == 1
+    assert reg["clase"] == "piedra" and reg["v"] == 1
+    # LED: misma regla que el firmware (clase_led y umbral)
+    assert reg["led"] is False
+    assert linea_contrato("webcam", 0, 5, ["nada", "papel", "piedra", "tijera"], [0.1, 0.2, 0.6, 0.1], 1, 2, 0.6,
+                          clase_led="piedra")["led"] is True

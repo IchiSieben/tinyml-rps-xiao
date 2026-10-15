@@ -40,7 +40,7 @@ python dashboard/servidor.py --simular
 # abrir http://127.0.0.1:5000
 ```
 
-Pruebas: `python -m pytest -q`.
+Pruebas: `python -m pytest -q`. Para correr también la prueba de cuantización con un modelo TFLite real: `pip install -r requirements-dev.txt`.
 
 ## Estructura
 
