@@ -158,11 +158,13 @@ def principal(verificar=False, sin_gif=False, salida=None):
                ("autoplay-bloqueado", ["--autoplay-policy=user-gesture-required"], None),
                ("sin-AudioContext", [], SIN_AUDIO)]
     total = {}
-    with sync_playwright() as pw, Servidor() as srv:
-        url = f"http://127.0.0.1:{srv.puerto}"
+    with sync_playwright() as pw:
         for i, (nombre, args_nav, init) in enumerate(pasadas):
-            total[nombre] = recorrido(pw, url, args_nav, init, destino if i == 0 else None,
-                                      fotogramas if i == 0 else None)
+            # Servidor nuevo por pasada: el guion siempre empieza en piedra al cargar la pagina
+            with Servidor() as srv:
+                url = f"http://127.0.0.1:{srv.puerto}"
+                total[nombre] = recorrido(pw, url, args_nav, init, destino if i == 0 else None,
+                                          fotogramas if i == 0 else None)
             time.sleep(0.5)
     malos = 0
     for nombre, err in total.items():
