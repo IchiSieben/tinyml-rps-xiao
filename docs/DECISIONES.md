@@ -65,3 +65,21 @@ Formato: fecha · tarea · qué se eligió · por qué · qué se descartó · c
 - **Descartado:** elegir la mejor máscara por penalización (más código sin ganancia visible); librería de QR.
 - **Revertir:** quitar el contenido de `<style id="css-juego">` y `<script id="js-juego">`; el núcleo UX sigue
   funcionando sin el juego.
+
+## 2026-10-15 · arreglos tras la verificación independiente
+
+- **Qué se corrigió:** capturas con servidor nuevo por pasada (el guion siempre arranca en piedra); el panel
+  "Debajo del capó" queda por encima del velo de los mensajes; FULL AURA legible en tema claro; un segundo
+  ROCK ON reinicia el plazo del tema arcade en vez de dejarlo fijo; el LED de `inferencia_local.py` solo usa
+  las clases pedidas (tijera solo si no hay bandera); log de compilación sin nombres de terceros; validador
+  con `fullmatch` y sin booleanos en `n` y `t_ms`; tildes en los mensajes de las herramientas; tecla F
+  anunciada y bloqueada durante una partida; textos más grandes para proyección.
+- **No se arregló, a propósito:**
+  - Tildes en `firmware/compilar.ps1`: PowerShell 5.1 lee el archivo sin BOM como ANSI y mostraría
+    caracteres rotos; se deja ASCII hasta migrarlo a UTF-8 con BOM.
+  - Rutas largas en Windows: no se renombran carpetas ya publicadas; en clones profundos usar
+    `git config core.longpaths true` o clonar cerca de la raíz del disco.
+  - `led = false` por defecto en el parcheador: en la placa el LED es opt-in a propósito (se pasa
+    `--led-clase`/`--led-clases` al parchear); el contrato habla del simulador y la webcam.
+  - El aura no se guarda en localStorage: es de sesión; racha, marcador y aura máxima sí persisten.
+- **Revertir:** `git revert` de los commits de esta tanda; cada tema es un commit aparte.

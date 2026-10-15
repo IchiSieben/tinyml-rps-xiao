@@ -97,7 +97,7 @@ def test_led_clases_lista_y_union(tmp_path):
 
 def test_led_clases_invalida(tmp_path):
     r = correr(armar_zip(tmp_path), "--led-clases", 'tijera,a"b')
-    assert r.returncode != 0 and "no valida" in r.stderr
+    assert r.returncode != 0 and "no válida" in r.stderr
 
 
 def test_led_etiqueta_fuera_de_contrato_solo_avisa(tmp_path):

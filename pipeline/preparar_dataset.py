@@ -135,19 +135,19 @@ def main(argv=None):
         plan[clase] = {"testing": lista[:n_test], "training": lista[n_test:]}
 
     total_leido = len(items)
-    print(f"Imagenes leidas: {total_leido}, invalidas: {len(invalidas)}, duplicadas descartadas: {duplicadas}")
+    print(f"Imágenes leídas: {total_leido}, inválidas: {len(invalidas)}, duplicadas descartadas: {duplicadas}")
     print(f"{'clase':<12}{'training':>10}{'testing':>10}")
     for c, d in plan.items():
         print(f"{c:<12}{len(d['training']):>10}{len(d['testing']):>10}")
     for origen, motivo in invalidas[:10]:
-        print(f"Aviso: imagen invalida ({motivo}): {origen}")
+        print(f"Aviso: imagen inválida ({motivo}): {origen}")
     for c, d in plan.items():
         n = len(d["training"]) + len(d["testing"])
         if n < MIN_POR_CLASE:
-            print(f"Aviso: la clase '{c}' tiene {n} imagenes utiles (minimo recomendado {MIN_POR_CLASE})")
+            print(f"Aviso: la clase '{c}' tiene {n} imágenes útiles (mínimo recomendado {MIN_POR_CLASE})")
     for c in plan:
-        if not ETIQUETA.match(c):
-            print(f"Aviso: el nombre de clase '{c}' no cumple el contrato (minusculas ASCII, digitos y _, hasta 24); "
+        if not ETIQUETA.fullmatch(c):
+            print(f"Aviso: el nombre de clase '{c}' no cumple el contrato (minúsculas ASCII, dígitos y _, hasta 24); "
                   "renombra la carpeta o el ZIP antes de subir")
     if len(plan) > 16:
         print(f"Aviso: hay {len(plan)} clases y el contrato admite hasta 16")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adapta la libreria Arduino exportada por Edge Impulse a la XIAO ESP32S3 Sense."""
+"""Adapta la librería Arduino exportada por Edge Impulse a la XIAO ESP32S3 Sense."""
 import argparse
 import re
 import shutil
@@ -40,7 +40,7 @@ def unir_clases_led(una, varias):
         if not c:
             continue
         if not c.isprintable() or '"' in c or "\\" in c:
-            raise ErrorParche(f"Clase de LED no valida: {c!r} (no puede llevar comillas, barras ni caracteres de control).")
+            raise ErrorParche(f"Clase de LED no válida: {c!r} (no puede llevar comillas, barras ni caracteres de control).")
         if not RE_ETIQUETA.match(c):
             avisos.append(f"la etiqueta de LED '{c}' no cumple el contrato (minusculas ASCII, digitos y _); "
                           "el dashboard rechazara las lineas que la usen")
@@ -68,7 +68,7 @@ def parchear_ino(ino: Path, clases_led, umbral: float) -> list[str]:
     msgs = []
     if not RE_PINES.search(texto):
         raise ErrorParche(
-            "No se encontro el bloque de seleccion de camara (CAMERA_MODEL_* ... #error) en "
+            "No se encontró el bloque de selección de cámara (CAMERA_MODEL_* ... #error) en "
             "esp32_camera.ino. La plantilla de Edge Impulse cambio o el ZIP no es el esperado."
         )
     inc = '#include "xiao_pins.h"\n#include "salida_json.h"\n'
@@ -78,7 +78,7 @@ def parchear_ino(ino: Path, clases_led, umbral: float) -> list[str]:
     ini = texto.find("// print the predictions")
     fin = texto.find("free(snapshot_buf);", ini) if ini >= 0 else -1
     if ini < 0 or fin < 0:
-        raise ErrorParche("No se encontro el bloque de impresion de resultados en loop().")
+        raise ErrorParche("No se encontró el bloque de impresión de resultados en loop().")
     if clases_led:
         lista = ",".join(clases_led)
         led = f'bool led = actualizar_led(clase_ganadora, conf_ganadora, "{lista}", {umbral:.2f}f);'
@@ -120,8 +120,8 @@ def parchear_arena(raiz: Path, arena: int) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description="Parchea la libreria Arduino de Edge Impulse (ZIP) para la XIAO ESP32S3 Sense.")
-    ap.add_argument("zip", type=Path, help="ZIP de la libreria Arduino exportada desde Edge Impulse")
+        description="Parchea la librería Arduino de Edge Impulse (ZIP) para la XIAO ESP32S3 Sense.")
+    ap.add_argument("zip", type=Path, help="ZIP de la librería Arduino exportada desde Edge Impulse")
     ap.add_argument("--salida", type=Path, help="ZIP de salida (por defecto <entrada>_xiao.zip)")
     ap.add_argument("--arena", type=int, help="tamano del tensor arena; usar 384605 si falta memoria")
     ap.add_argument("--led-clase", help="clase que enciende el LED (equivale a una lista de una)")
@@ -139,7 +139,7 @@ def main() -> int:
             inos = sorted(tmp.rglob(INO_REL))
             if not inos:
                 raise ErrorParche(
-                    f"No se encontro {INO_REL} dentro del ZIP. Exporta la libreria desde Edge "
+                    f"No se encontró {INO_REL} dentro del ZIP. Exporta la librería desde Edge "
                     "Impulse con Deployment > Arduino library.")
             ino = inos[0]
             raiz_lib = ino.parents[3]

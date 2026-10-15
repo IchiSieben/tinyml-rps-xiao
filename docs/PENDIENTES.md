@@ -105,7 +105,7 @@ tocar código: las clases nuevas entran solo como carpeta o ZIP, y el dashboard 
    derecha, 15 a 40 cm, dos fondos, luz natural y de foco) y **al menos 60 por clase**, igual que las
    cuatro base. Con menos de 30 útiles `preparar_dataset.py` avisa.
 2. **Nombre del ZIP = nombre de la clase**, en minúsculas y sin tildes: `metal.zip`, `pulgar.zip`
-   (solo `a-z`, `0-9` y `_`, hasta 24 caracteres). El script avisa si el nombre no cumple el contrato.
+   (solo `a-z`, `0-9` y `_`, hasta 24 caracteres). El script normaliza el nombre (minúsculas, sin tildes, espacios a `_`) y avisa si aun así no cumple el contrato.
    Pon los ZIP en `datos/zips/`.
 3. **`nada` tiene que seguir existiendo**: es lo que evita que el LED o el juego reaccionen al fondo.
    Sin mano, `nada` debe ganar; asegúrate de tener fotos de fondo vacío con cada fondo y luz que uses.

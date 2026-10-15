@@ -76,7 +76,7 @@ def main(argv=None):
                             subidos += 1
                         else:
                             fallidos += 1
-                            print(f"  fallo {item.get('fileName')}: {item.get('error')}")
+                            print(f"  falló {item.get('fileName')}: {item.get('error')}")
                     break
                 ultimo = f"HTTP {r.status_code}: {r.text[:200]}"
                 time.sleep(2 ** (intento + 1))

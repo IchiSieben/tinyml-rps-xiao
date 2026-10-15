@@ -93,7 +93,7 @@ class ClienteEI:
                 ultimo = type(e).__name__
             time.sleep(2 ** intento)
         else:
-            raise SystemExit(f"{metodo} {url} fallo tras 5 intentos ({ultimo})")
+            raise SystemExit(f"{metodo} {url} falló tras 5 intentos ({ultimo})")
         if r.status_code >= 400:
             raise SystemExit(f"{metodo} {url} -> HTTP {r.status_code}: {r.text[:300]}")
         if "json" in r.headers.get("content-type", ""):
@@ -129,7 +129,7 @@ class ClienteEI:
             job = d["job"]
             if job.get("finished"):
                 if not job.get("finishedSuccessful"):
-                    raise SystemExit(f"El trabajo '{etiqueta}' (id {id_trabajo}) fallo. Revisa los logs en Studio.")
+                    raise SystemExit(f"El trabajo '{etiqueta}' (id {id_trabajo}) falló. Revisa los logs en Studio.")
                 print(f"  {etiqueta}: terminado en {int(time.time() - t0)} s")
                 return job
             print(f"  {etiqueta}: en curso ({int(time.time() - t0)} s)", flush=True)
