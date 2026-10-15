@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Piedra, papel o tijera con TinyML</title>
+<style>
+:root{
+  --bg:#f5f5f7;--card:#ffffff;--tx:#1d1d1f;--tx2:#5f5f66;--line:#e5e5ea;--acc:#0071e3;--acc-t:#e8f2fd;
+  --ok:#1a8f3c;--warn:#b25e00;--bad:#c4281c;--sh:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+  --track:#ececf0;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000000;--card:#1c1c1e;--tx:#f5f5f7;--tx2:#a1a1a8;--line:#2c2c2e;--acc:#2f9bff;--acc-t:#10243a;
+  --ok:#32d158;--warn:#ffb340;--bad:#ff6961;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);--track:#2c2c2e;
+}}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.4}
+main{max-width:1080px;margin:0 auto;padding:32px 20px 48px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:28px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em}
+h1 small{display:block;font-size:15px;font-weight:400;color:var(--tx2);letter-spacing:0;margin-top:2px}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px;box-shadow:var(--sh)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--tx2);transition:background .3s}
+.dot.on{background:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 25%,transparent)}
+.dot.off{background:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.card{background:var(--card);border-radius:28px;padding:28px;box-shadow:var(--sh);transition:background .3s}
+.card h2{font-size:13px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:18px}
+.hero{grid-column:span 5;display:flex;flex-direction:column;align-items:center;text-align:center}
+.probs{grid-column:span 7}
+.led{grid-column:span 4}.lat{grid-column:span 4}.cont{grid-column:span 4}
+.hist{grid-column:span 8}.juego{grid-column:span 4}
+.ring{position:relative;width:240px;height:240px;margin:4px 0 12px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:12;stroke-linecap:round}
+.ring .bg{stroke:var(--track)}
+.ring .fg{stroke:var(--acc);stroke-dasharray:603.2;stroke-dashoffset:603.2;transition:stroke-dashoffset .5s cubic-bezier(.3,.7,.2,1),stroke .3s}
+.glyph{position:absolute;inset:0;display:grid;place-items:center;font-size:96px;transition:transform .25s}
+.glyph.pop{transform:scale(1.08)}
+.gname{font-size:34px;font-weight:700;letter-spacing:-.02em;text-transform:capitalize}
+.gconf{color:var(--tx2);font-size:17px;margin-top:2px;font-variant-numeric:tabular-nums}
+.pr{display:grid;grid-template-columns:78px 1fr 52px;align-items:center;gap:12px;margin-bottom:16px;font-size:16px}
+.pr:last-child{margin-bottom:0}
+.pr span:first-child{text-transform:capitalize}
+.bar{height:14px;background:var(--track);border-radius:7px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--tx2);border-radius:7px;transition:width .45s cubic-bezier(.3,.7,.2,1),background .3s}
+.bar i.top{background:var(--acc)}
+.pr b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.ledrow{display:flex;align-items:center;gap:16px}
+.bulb{width:56px;height:56px;border-radius:50%;background:var(--track);border:1px solid var(--line);transition:background .1s,box-shadow .1s}
+.bulb.on{background:#ffd60a;box-shadow:0 0 28px 6px rgba(255,214,10,.55)}
+.big{font-size:22px;font-weight:700}
+.sub{color:var(--tx2);font-size:14px;margin-top:2px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:16px}
+.kv:last-child{border:0}.kv b{font-variant-numeric:tabular-nums}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chip{background:var(--bg);border-radius:16px;padding:12px 14px}
+.chip b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.chip span{font-size:14px;color:var(--tx2);text-transform:capitalize}
+.strip{display:flex;gap:5px;flex-wrap:wrap}
+.cell{width:calc((100% - 29*5px)/30);min-width:20px;aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:13px;background:var(--track);
+  animation:in .3s ease}
+.cell.piedra{background:color-mix(in srgb,var(--acc) 85%,#000)}
+.cell.papel{background:color-mix(in srgb,var(--ok) 80%,#000)}
+.cell.tijera{background:color-mix(in srgb,var(--warn) 85%,#000)}
+.cell.nada{background:var(--track)}
+@keyframes in{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;color:var(--tx2);font-size:13px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+button{font:inherit;border:0;border-radius:999px;padding:10px 18px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;transition:opacity .2s}
+body.claro button{color:#fff}
+button.sec{background:var(--acc-t);color:var(--acc)}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.duel{display:flex;justify-content:space-around;font-size:48px;margin:12px 0 6px;text-align:center}
+.duel small{display:block;font-size:13px;color:var(--tx2)}
+.res{text-align:center;font-weight:700;font-size:18px;min-height:26px}
+.score{text-align:center;color:var(--tx2);font-size:14px;margin:4px 0 12px}
+.vacio{position:fixed;inset:0;display:none;place-items:center;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);z-index:5;text-align:center;padding:24px}
+.vacio.ver{display:grid}
+.vacio h2{font-size:30px;margin-bottom:8px}.vacio p{color:var(--tx2);max-width:420px}
+@media (max-width:900px){.hero,.probs,.led,.lat,.cont,.hist,.juego{grid-column:span 12}}
+@media (max-width:480px){main{padding:20px 14px 36px}.card{padding:22px;border-radius:24px}h1{font-size:24px}.ring{width:200px;height:200px}.glyph{font-size:80px}.pr{grid-template-columns:64px 1fr 48px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Piedra, papel o tijera<small>Clasificador TinyML en una XIAO ESP32S3 Sense</small></h1>
+    <div class="badges" aria-live="polite">
+      <span class="badge"><span class="dot" id="dotConn"></span><span id="fuente">Sin datos</span></span>
+      <span class="badge" id="ips">0.0 inf/s</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card hero" aria-label="Gesto actual">
+      <h2>Gesto detectado</h2>
+      <div class="ring">
+        <svg viewBox="0 0 220 220" aria-hidden="true"><circle class="bg" cx="110" cy="110" r="96"/><circle class="fg" id="fg" cx="110" cy="110" r="96"/></svg>
+        <div class="glyph" id="glyph" aria-hidden="true">&#128566;</div>
+      </div>
+      <div class="gname" id="gname">Esperando</div>
+      <div class="gconf" id="gconf">Confianza: sin datos</div>
+    </section>
+
+    <section class="card probs" aria-label="Probabilidades">
+      <h2>Probabilidad por clase</h2>
+      <div id="barras"></div>
+    </section>
+
+    <section class="card led" aria-label="LED">
+      <h2>LED de la placa</h2>
+      <div class="ledrow"><div class="bulb" id="bulb"></div>
+        <div><div class="big" id="ledtx">Apagado</div><div class="sub">GPIO 21 &middot; activo en bajo</div><div class="sub" id="umbral">Umbral: -</div></div></div>
+    </section>
+
+    <section class="card lat" aria-label="Latencia">
+      <h2>Latencia</h2>
+      <div class="kv"><span>Preprocesado (DSP)</span><b id="ldsp">- ms</b></div>
+      <div class="kv"><span>Inferencia</span><b id="linf">- ms</b></div>
+      <div class="kv"><span>Inferencias totales</span><b id="total">0</b></div>
+    </section>
+
+    <section class="card cont" aria-label="Contadores">
+      <h2>Contador por clase</h2>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <section class="card hist" aria-label="Historial">
+      <h2>Ultimas 30 predicciones</h2>
+      <div class="strip" id="strip"></div>
+      <div class="leg"><span><i style="background:color-mix(in srgb,var(--acc) 85%,#000)"></i>Piedra</span><span><i style="background:color-mix(in srgb,var(--ok) 80%,#000)"></i>Papel</span><span><i style="background:color-mix(in srgb,var(--warn) 85%,#000)"></i>Tijera</span><span><i style="background:var(--track)"></i>Nada</span></div>
+    </section>
+
+    <section class="card juego" aria-label="Juego">
+      <h2>Jugar contra la XIAO</h2>
+      <div id="juegoOff"><p class="sub" style="margin-bottom:14px">Mantiene un gesto estable por un segundo y la pagina elige su jugada al azar.</p><button id="btnJuego">Activar juego</button></div>
+      <div id="juegoOn" hidden>
+        <div class="duel"><div><span id="tu">&#10067;</span><small>Tu gesto</small></div><div><span id="yo">&#10067;</span><small>Pagina</small></div></div>
+        <div class="res" id="res" aria-live="polite">Muestra un gesto</div>
+        <div class="score" id="score">Tu 0 &middot; Pagina 0 &middot; Empates 0</div>
+        <button class="sec" id="btnOff">Desactivar</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="vacio ver" id="vacio" role="status">
+  <div><h2>Sin datos</h2><p id="vacioTx">Esperando inferencias. Inicia el servidor con <b>--simular</b>, <b>--serial PUERTO</b> o envia lineas a <b>/api/inferencia</b>.</p></div>
+</div>
+
+<script>
+"use strict";
+var CL=["piedra","papel","tijera","nada"];
+var GL={piedra:"✊",papel:"✋",tijera:"✌️",nada:"😶"};
+var NOMBRE={piedra:"Piedra",papel:"Papel",tijera:"Tijera",nada:"Nada"};
+var FUENTE={simulacion:"Simulación",xiao:"XIAO",webcam:"Webcam"};
+var $=function(i){return document.getElementById(i)};
+var conteos={piedra:0,papel:0,tijera:0,nada:0},total=0,hist=[],marcas=[],ultimoRx=0;
+var barras={},chips={};
+
+CL.forEach(function(c){
+  var r=document.createElement("div");r.className="pr";
+  r.innerHTML='<span>'+c+'</span><div class="bar"><i></i></div><b>0%</b>';
+  $("barras").appendChild(r);barras[c]={bar:r.querySelector("i"),pct:r.querySelector("b")};
+  var h=document.createElement("div");h.className="chip";
+  h.innerHTML='<b>0</b><span>'+GL[c]+' '+c+'</span>';
+  $("chips").appendChild(h);chips[c]=h.querySelector("b");
+});
+
+function pintar(d){
+  ultimoRx=Date.now();
+  $("vacio").classList.remove("ver");
+  $("dotConn").className="dot on";
+  $("fuente").textContent=(FUENTE[d.fuente]||d.fuente)+" · conectado";
+  $("glyph").textContent=GL[d.clase];
+  $("glyph").classList.add("pop");setTimeout(function(){$("glyph").classList.remove("pop")},180);
+  $("gname").textContent=NOMBRE[d.clase];
+  $("gconf").textContent="Confianza: "+(d.confianza*100).toFixed(1)+"%";
+  $("fg").style.strokeDashoffset=603.2*(1-d.confianza);
+  var mx=CL.reduce(function(a,b){return d.probs[a]>=d.probs[b]?a:b});
+  CL.forEach(function(c){
+    var p=d.probs[c];barras[c].bar.style.width=(p*100)+"%";
+    barras[c].bar.className=c===mx?"top":"";
+    barras[c].pct.textContent=Math.round(p*100)+"%";
+  });
+  $("bulb").className="bulb"+(d.led?" on":"");
+  $("ledtx").textContent=d.led?"Encendido":"Apagado";
+  $("umbral").textContent="Umbral: "+d.umbral;
+  $("ldsp").textContent=d.lat_ms.dsp+" ms";
+  $("linf").textContent=d.lat_ms.inf+" ms";
+  conteos[d.clase]++;total++;
+  CL.forEach(function(c){chips[c].textContent=conteos[c]});
+  $("total").textContent=total;
+  hist.push(d.clase);if(hist.length>30)hist.shift();
+  var s=$("strip");var cel=document.createElement("div");cel.className="cell "+d.clase;cel.title=d.clase;
+  s.appendChild(cel);while(s.children.length>30)s.removeChild(s.firstChild);
+  var t=Date.now();marcas.push(t);while(marcas.length&&t-marcas[0]>5000)marcas.shift();
+  juego(d);
+}
+setInterval(function(){
+  var t=Date.now();while(marcas.length&&t-marcas[0]>5000)marcas.shift();
+  $("ips").textContent=(marcas.length/5).toFixed(1)+" inf/s";
+  if(ultimoRx&&t-ultimoRx>5000){$("dotConn").className="dot off";$("fuente").textContent="Sin señal";}
+},1000);
+
+var jOn=false,pts={yo:0,ia:0,emp:0},cand=null,desde=0,bloqueo=0;
+$("btnJuego").onclick=function(){jOn=true;$("juegoOff").hidden=true;$("juegoOn").hidden=false;};
+$("btnOff").onclick=function(){jOn=false;$("juegoOff").hidden=false;$("juegoOn").hidden=true;};
+function gana(a,b){return (a==="piedra"&&b==="tijera")||(a==="papel"&&b==="piedra")||(a==="tijera"&&b==="papel")}
+function juego(d){
+  if(!jOn)return;var t=Date.now();
+  if(d.clase==="nada"||t<bloqueo){cand=null;return}
+  if(d.clase!==cand){cand=d.clase;desde=t;return}
+  if(t-desde<1000)return;
+  var m=["piedra","papel","tijera"][Math.floor(Math.random()*3)];
+  $("tu").textContent=GL[cand];$("yo").textContent=GL[m];
+  var r;if(cand===m){pts.emp++;r="Empate"}else if(gana(cand,m)){pts.yo++;r="Ganaste"}else{pts.ia++;r="Gana la pagina"}
+  $("res").textContent=r;
+  $("score").textContent="Tu "+pts.yo+" · Pagina "+pts.ia+" · Empates "+pts.emp;
+  bloqueo=t+2500;cand=null;
+}
+
+function conectar(){
+  var es=new EventSource("/api/stream");
+  es.addEventListener("inferencia",function(e){try{pintar(JSON.parse(e.data))}catch(x){}});
+  es.onerror=function(){$("dotConn").className="dot off";es.close();setTimeout(conectar,2000)};
+}
+conectar();
+</script>
+</body>
+</html>
