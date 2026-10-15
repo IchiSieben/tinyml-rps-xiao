@@ -1,9 +1,9 @@
 # Compilacion contra libreria Edge Impulse REAL (clasificacion de imagen)
 Fecha: 2026-10-15
 Libreria: https://github.com/Rishith-17/namesthe  commit b13924bca08a2fa04ae15d7b01b78da37c3f7959 (rishi2458-project-1_inferencing)
-Etiquetas: "Rishab Shetty", "Rishabh Singh"  (--led-clase "Rishabh Singh" --umbral 0.60)
+Etiquetas: "<etiqueta A>", "<etiqueta B>" (nombres de personas, omitidos)  (--led-clase "<etiqueta B>" --umbral 0.60)
 FQBN: esp32:esp32:XIAO_ESP32S3:PSRAM=opi   Core: esp32:esp32@3.3.12
-Comando: python firmware/parchear_libreria.py rishi2458-project-1_inferencing.zip --led-clase "Rishabh Singh" --umbral 0.60
+Comando: python firmware/parchear_libreria.py rishi2458-project-1_inferencing.zip --led-clase "<etiqueta B>" --umbral 0.60
          powershell -NoProfile -ExecutionPolicy Bypass -File firmware/compilar.ps1 -Zip rishi2458-project-1_inferencing_xiao.zip
 Nota: una libreria mas antigua (martishin/tinyml-digits-recognition f6ed47c, SDK viejo) fallo solo en edge-impulse-sdk/.../conv.cpp (inicializadores designados, gcc 14), no en el sketch parcheado.
 Resultado final: Sketch uses 436483 bytes (13%) of program storage space. Maximum is 3342336 bytes.

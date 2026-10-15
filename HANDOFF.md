@@ -6,10 +6,12 @@ con dashboard local en vivo. Todo lo que no depende de placa, fotos o API key qu
 
 ## Current state
 - DONE: dashboard Flask + SSE con simulador, serie y POST; capturas en `resultados/dashboard_*.png`.
-- DONE: `firmware/parchear_libreria.py` con pruebas sobre el `esp32_camera.ino` real de Edge Impulse.
+- DONE: `firmware/parchear_libreria.py` con pruebas, y el sketch parcheado compila contra una librería
+  pública real de Edge Impulse (`resultados/compilacion_libreria_ei_real.log`, 13 % de flash).
 - DONE: `pipeline/inferencia_local.py` validado con el modelo SenseCraft del equipo
   (`resultados/validacion_modelo_referencia/resumen.md`).
-- DONE: scripts de la API de Edge Impulse con `--dry-run`.
+- DONE: scripts de la API de Edge Impulse con `--dry-run` (nunca probados contra la API real: no hay clave).
+- DONE: revisión independiente; arreglos en `3cc9433` y tildes en `c337cf3`.
 - DONE: entorno arduino-cli + core esp32 3.3.12; `CameraWebServer` compila
   (`resultados/compilacion_camerawebserver.log`).
 - BLOCKED (hardware/credenciales): fotos, API key, flasheo. Ver `docs/PENDIENTES.md`.

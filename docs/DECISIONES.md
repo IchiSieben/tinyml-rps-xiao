@@ -20,3 +20,20 @@ Formato: fecha · tarea · qué se eligió · por qué · qué se descartó · c
   pedido es para el core esp32, no para la CLI. Core instalado: `esp32:esp32@3.3.12` (estable,
   índice `package_esp32_index.json`, que no publica versiones alpha ni RC).
 - **Revertir:** descargar una CLI estable desde https://github.com/arduino/arduino-cli/releases.
+
+## 2026-10-15 · validación del parcheador con una librería real
+
+- **Qué:** como no hay modelo propio todavía, el parche se probó compilando contra una librería
+  pública de Edge Impulse para clasificación de imagen (ver `resultados/compilacion_libreria_ei_real.log`).
+  Sus etiquetas son nombres de personas: se omitieron del log. El commit `832ce63` todavía las
+  contiene en el historial; no se reescribió el historial porque eso exige force-push.
+- **Descartado:** una librería más antigua (SDK viejo) que no compila con gcc 14 del core 3.x por un
+  problema del propio SDK. Si Edge Impulse entrega un SDK así, la salida es exportar de nuevo desde
+  el Studio (las exportaciones actuales traen el SDK nuevo).
+- **Revertir:** borrar `resultados/compilacion_libreria_ei_real.log`.
+
+## 2026-10-15 · LED con una sola regla
+
+- **Qué:** `led = (clase == clase_led) y (confianza >= umbral)` en firmware, webcam y simulador
+  (antes cada uno usaba una regla distinta). Por defecto `tijera` y 0.6.
+- **Revertir:** `--led-clase` en `servidor.py`, `inferencia_local.py` y `parchear_libreria.py`.
