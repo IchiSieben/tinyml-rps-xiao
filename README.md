@@ -77,7 +77,7 @@ Pruebas: `python -m pytest -q`. Para correr también la prueba de cuantización 
 | [pipeline/](pipeline/README.md) | Preparación del dataset, subida y entrenamiento por API, descarga de la librería, inferencia local con webcam. |
 | [dashboard/](dashboard/README.md) | Servidor Flask con SSE (eventos enviados por el servidor) y una página de un solo archivo, sin CDN (red de distribución de contenidos). |
 | [tests/](tests/) | Pruebas con `pytest` (`-m "not ui"` omite la prueba del navegador). |
-| [tools/](tools/capturas.py) | `capturas.py`: capturas, GIF y verificación de consola con Playwright. |
+| [tools/](tools/capturas.py) | `capturas.py`: capturas, GIF y verificación de consola con Playwright (requiere `pip install -r requirements-dev.txt` y `python -m playwright install chromium`). |
 | [resultados/](resultados/) | Capturas de la interfaz (`python tools/capturas.py`), log de compilación y validación de la inferencia local. |
 | [docs/](docs/) | Contrato JSON, guion de la demo, decisiones y lista de pendientes. |
 

@@ -99,17 +99,29 @@ def recorrido(pw, url, args_nav, init_js, destino, fotogramas):
         foto("inicio", gif=True)
 
         estado["actual"] = "jugando"
-        pag.click("#btn-jugar")
-        pag.wait_for_timeout(500)
-        foto(gif=True)
-        pag.wait_for_timeout(900)
-        foto(gif=True)
-        esperar_texto("Tú vs Placa")
+        # La jugada se lee del guion del simulador: se espera a que la placa vea piedra antes de
+        # pulsar Jugar, y si aun asi la partida no puntua ("No vi tu mano") se reintenta.
+        for intento in range(3):
+            pag.wait_for_function("window.RPS.ultima && window.RPS.ultima.clase === 'piedra'",
+                                  timeout=40000, polling=100)
+            pag.click("#btn-jugar")
+            pag.wait_for_timeout(500)
+            foto(gif=intento == 0)
+            pag.wait_for_timeout(900)
+            foto(gif=intento == 0)
+            pag.wait_for_function(
+                "() => ['Tú vs Placa', 'No vi tu mano'].some(t => document.body.innerText.includes(t))",
+                timeout=25000, polling=100)
+            if pag.evaluate("document.body.innerText.includes('Tú vs Placa')"):
+                break
+            pag.wait_for_function("!document.body.innerText.includes('No vi tu mano')", timeout=10000)
+        else:
+            raise RuntimeError("la partida no puntuo en 3 intentos")
         pag.wait_for_timeout(500)
         foto("jugando", gif=True)
 
         estado["actual"] = "arcade"
-        esperar_texto("ROCK ON")
+        esperar_texto("ROCK ON", ms=45000)
         pag.wait_for_timeout(700)
         foto("arcade", gif=True)
 
