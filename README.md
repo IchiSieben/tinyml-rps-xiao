@@ -7,11 +7,11 @@
 ![Flask](https://img.shields.io/badge/Flask-SSE-000000)
 
 Piedra, papel o tijera con TinyML (aprendizaje automático en microcontroladores): una XIAO
-ESP32S3 Sense mira la mano, clasifica el gesto en la propia placa y enciende su LED cuando ve
-`tijera` con más de 60 % de confianza. El modelo se entrena en Edge Impulse **por API**, sin clics
+ESP32S3 Sense mira la mano, clasifica el gesto en la propia placa y enciende su LED (diodo emisor de luz) cuando ve
+`tijera` con más de 60 % de confianza. El modelo se entrena en Edge Impulse **por API** (interfaz de programación), sin clics
 en el Studio, y un dashboard local muestra cada inferencia en vivo.
 
-Curso Proyecto Integrador C7328, UPCH 2026-II.
+Curso Proyecto Integrador C7328, UPCH (Universidad Peruana Cayetano Heredia) 2026-II.
 
 ![Dashboard en modo simulación](resultados/dashboard_claro.png)
 
@@ -46,9 +46,9 @@ Pruebas: `python -m pytest -q`. Para correr también la prueba de cuantización 
 
 | Carpeta | Qué hay |
 |---|---|
-| [firmware/](firmware/README.md) | Parcheador de la librería de Edge Impulse (pines de la XIAO, LED en GPIO 21 activo en bajo, salida JSON), compilación y flasheo con `arduino-cli`. |
+| [firmware/](firmware/README.md) | Parcheador de la librería de Edge Impulse (pines de la XIAO, LED en GPIO 21 (pin de entrada y salida de propósito general) activo en bajo, salida JSON (JavaScript Object Notation)), compilación y flasheo con `arduino-cli`. |
 | [pipeline/](pipeline/README.md) | Preparación del dataset, subida y entrenamiento por API, descarga de la librería, inferencia local con webcam. |
-| [dashboard/](dashboard/README.md) | Servidor Flask con SSE (eventos enviados por el servidor) y una página de un solo archivo, sin CDN. |
+| [dashboard/](dashboard/README.md) | Servidor Flask con SSE (eventos enviados por el servidor) y una página de un solo archivo, sin CDN (red de distribución de contenidos). |
 | [tests/](tests/) | Pruebas con `pytest`. |
 | [resultados/](resultados/) | Capturas del dashboard, log de compilación y validación de la inferencia local. |
 | [docs/](docs/) | Contrato JSON, guion de la demo, decisiones y lista de pendientes. |

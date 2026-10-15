@@ -132,18 +132,18 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
     </section>
 
     <section class="card hist" aria-label="Historial">
-      <h2>Ultimas 30 predicciones</h2>
+      <h2>Últimas 30 predicciones</h2>
       <div class="strip" id="strip"></div>
       <div class="leg"><span><i style="background:color-mix(in srgb,var(--acc) 85%,#000)"></i>Piedra</span><span><i style="background:color-mix(in srgb,var(--ok) 80%,#000)"></i>Papel</span><span><i style="background:color-mix(in srgb,var(--warn) 85%,#000)"></i>Tijera</span><span><i style="background:var(--track)"></i>Nada</span></div>
     </section>
 
     <section class="card juego" aria-label="Juego">
       <h2>Jugar contra la XIAO</h2>
-      <div id="juegoOff"><p class="sub" style="margin-bottom:14px">Mantiene un gesto estable por un segundo y la pagina elige su jugada al azar.</p><button id="btnJuego">Activar juego</button></div>
+      <div id="juegoOff"><p class="sub" style="margin-bottom:14px">Mantiene un gesto estable por un segundo y la página elige su jugada al azar.</p><button id="btnJuego">Activar juego</button></div>
       <div id="juegoOn" hidden>
-        <div class="duel"><div><span id="tu">&#10067;</span><small>Tu gesto</small></div><div><span id="yo">&#10067;</span><small>Pagina</small></div></div>
+        <div class="duel"><div><span id="tu">&#10067;</span><small>Tu gesto</small></div><div><span id="yo">&#10067;</span><small>Página</small></div></div>
         <div class="res" id="res" aria-live="polite">Muestra un gesto</div>
-        <div class="score" id="score">Tu 0 &middot; Pagina 0 &middot; Empates 0</div>
+        <div class="score" id="score">Tú 0 &middot; Página 0 &middot; Empates 0</div>
         <button class="sec" id="btnOff">Desactivar</button>
       </div>
     </section>
@@ -151,7 +151,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 </main>
 
 <div class="vacio ver" id="vacio" role="status">
-  <div><h2>Sin datos</h2><p id="vacioTx">Esperando inferencias. Inicia el servidor con <b>--simular</b>, <b>--serial PUERTO</b> o envia lineas a <b>/api/inferencia</b>.</p></div>
+  <div><h2>Sin datos</h2><p id="vacioTx">Esperando inferencias. Inicia el servidor con <b>--simular</b>, <b>--serial PUERTO</b> o envía líneas a <b>/api/inferencia</b>.</p></div>
 </div>
 
 <script>
@@ -220,9 +220,9 @@ function juego(d){
   if(t-desde<1000)return;
   var m=["piedra","papel","tijera"][Math.floor(Math.random()*3)];
   $("tu").textContent=GL[cand];$("yo").textContent=GL[m];
-  var r;if(cand===m){pts.emp++;r="Empate"}else if(gana(cand,m)){pts.yo++;r="Ganaste"}else{pts.ia++;r="Gana la pagina"}
+  var r;if(cand===m){pts.emp++;r="Empate"}else if(gana(cand,m)){pts.yo++;r="Ganaste"}else{pts.ia++;r="Gana la página"}
   $("res").textContent=r;
-  $("score").textContent="Tu "+pts.yo+" · Pagina "+pts.ia+" · Empates "+pts.emp;
+  $("score").textContent="Tú "+pts.yo+" · Página "+pts.ia+" · Empates "+pts.emp;
   bloqueo=t+2500;cand=null;
 }
 

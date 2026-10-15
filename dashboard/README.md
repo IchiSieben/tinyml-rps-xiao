@@ -6,11 +6,11 @@ Panel web para ver las inferencias del clasificador piedra, papel o tijera (XIAO
 
 ## Ejecutar
 
-Desde la raiz del repo (necesita `flask`; `pyserial` solo para el modo serie):
+Desde la raíz del repo (necesita `flask`; `pyserial` solo para el modo serie):
 
 | Modo | Comando |
 |---|---|
-| Simulacion (sin hardware) | `python dashboard/servidor.py --simular` |
+| Simulación (sin hardware) | `python dashboard/servidor.py --simular` |
 | XIAO por USB | `python dashboard/servidor.py --serial COM5` (o define `XIAO_PUERTO` en `.env` y usa `--serial`) |
 | Webcam | `python dashboard/servidor.py` y en otra terminal `python pipeline/inferencia_local.py --enviar http://127.0.0.1:5000` |
 
@@ -18,10 +18,10 @@ Opciones: `--puerto-http 5000`, `--host 127.0.0.1`, `--baudios 115200`. Abre `ht
 
 ## Endpoints
 
-- `GET /` : la pagina.
+- `GET /` : la página.
 - `GET /api/stream` : SSE, evento `inferencia` y un latido cada 15 s.
-- `GET /api/estado` : fuente, conexion, conteos por clase, ultima inferencia, latencia media y tiempo activo.
-- `POST /api/inferencia` : una inferencia en JSON o una linea cruda; 400 si no cumple `docs/CONTRATO.md`.
+- `GET /api/estado` : fuente, conexión, conteos por clase, última inferencia, latencia media y tiempo activo.
+- `POST /api/inferencia` : una inferencia en JSON o una línea cruda; 400 si no cumple `docs/CONTRATO.md`.
 
 ## Pruebas
 
