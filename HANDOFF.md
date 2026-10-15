@@ -5,6 +5,10 @@ Demo TinyML piedra/papel/tijera/nada en XIAO ESP32S3 Sense, entrenada en Edge Im
 con dashboard local en vivo. Todo lo que no depende de placa, fotos o API key queda hecho.
 
 ## Current state
+- DONE (segunda hora): inicio con Jugar, capó (D), arcade (A), sonidos WebAudio, juego con marcador,
+  aura, easter eggs (metal, pulgar, Konami, consuelo), Fin de clase (F) con QR propio; clases abiertas
+  en el contrato; `--guion` en el simulador; `--led-clases` en firmware y webcam. Revisión adversarial
+  de 4 lentes: 6 defectos medios confirmados y arreglados; capturas estables 6/6. Último commit: 227dc08.
 - DONE: dashboard Flask + SSE con simulador, serie y POST; capturas en `resultados/ui_*.png` y `demo.gif` (`python tools/capturas.py`).
 - DONE: `firmware/parchear_libreria.py` con pruebas, y el sketch parcheado compila contra una librería
   pública real de Edge Impulse (`resultados/compilacion_libreria_ei_real.log`, 13 % de flash).
