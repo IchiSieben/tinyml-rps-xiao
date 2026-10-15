@@ -88,7 +88,7 @@ def parsear_guion(texto):
             continue
         nombre, _, seg = s.partition(":")
         nombre = nombre.strip()
-        if not ETIQUETA.match(nombre):
+        if not ETIQUETA.fullmatch(nombre):
             raise ValueError(f"etiqueta de guion no válida: '{nombre}' (usa minúsculas ASCII, dígitos y _, hasta 24)")
         dur = SEG_POR_ELEMENTO
         if seg.strip():
@@ -263,7 +263,7 @@ def main():
     a = p.parse_args()
     leds = []
     for c in ([a.led_clase] if a.led_clase else []) + [x.strip() for x in a.led_clases.split(",") if x.strip()]:
-        if not ETIQUETA.match(c):
+        if not ETIQUETA.fullmatch(c):
             p.error(f"clase de LED no válida: '{c}' (minúsculas ASCII, dígitos y _)")
         if c not in leds:
             leds.append(c)

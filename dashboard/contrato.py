@@ -42,14 +42,14 @@ def validar(linea_o_dict):
         return None
     if not isinstance(probs, dict) or not MIN_CLASES <= len(probs) <= MAX_CLASES:
         return None
-    if any(not isinstance(k, str) or not ETIQUETA.match(k) or not _num(v) or not 0 <= v <= 1
+    if any(not isinstance(k, str) or not ETIQUETA.fullmatch(k) or not _num(v) or not 0 <= v <= 1
            for k, v in probs.items()):
         return None
     if clase not in probs:
         return None
     if not isinstance(lat, dict) or not _num(lat.get("dsp")) or not _num(lat.get("inf")):
         return None
-    if not isinstance(d.get("n"), int) or not isinstance(d.get("t_ms"), int):
+    if any(not isinstance(d.get(k), int) or isinstance(d.get(k), bool) or d[k] < 0 for k in ("n", "t_ms")):
         return None
     if d.get("fuente") not in FUENTES or not isinstance(d.get("led"), bool) or not _num(d.get("umbral")):
         return None

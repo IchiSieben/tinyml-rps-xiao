@@ -89,7 +89,7 @@ def test_rechaza_clase_fuera_de_probs():
     assert validar(linea("nada", {"piedra": 0.5, "papel": 0.5})) is None
 
 
-@pytest.mark.parametrize("etiqueta", ["Metal", "met al", "metal-2", "métal", "", "x" * 25])
+@pytest.mark.parametrize("etiqueta", ["Metal", "met al", "metal-2", "métal", "", "x" * 25, "a\n"])
 def test_rechaza_etiqueta_mala(etiqueta):
     probs = {"piedra": 0.2, etiqueta: 0.8}
     assert validar(linea(etiqueta, probs, confianza=0.8)) is None
@@ -161,3 +161,10 @@ def test_estado_trae_puerto_y_clases(cliente):
     est = cliente.get("/api/estado").get_json()
     assert est["puerto"] == "COM5" and est["clases"] == ["piedra", "papel", "tijera", "nada", "metal"]
     assert est["conteos"]["metal"] == 1
+
+
+def test_rechaza_booleanos_en_n_y_t_ms():
+    base = json.loads(EJEMPLO)
+    assert validar(dict(base, n=True)) is None
+    assert validar(dict(base, t_ms=False)) is None
+    assert validar(dict(base, n=-1)) is None
